@@ -1,0 +1,2837 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Pengajuan Usulan Judul & Pembimbing Tugas Akhir</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="icon" type="image/png" href="https://hukum.upnvj.ac.id/wp-content/uploads/2025/10/WhatsApp-Image-2025-10-14-at-13.45.20-1.png">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    #dashboard-app-container { all: initial; font-family: 'Inter', system-ui, sans-serif; display: block; width: 100%; }
+    #dashboard-app-container * { box-sizing: border-box; }
+    #dashboard-app-container body, #dashboard-app-container .app-content { background: #f7f9fb; font-family: 'Inter', system-ui, sans-serif; }
+    #dashboard-app-container .logo-upn { max-width: 100px; margin-bottom: 15px; }
+    #dashboard-app-container .dashboard-section { padding: 2rem; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(26,43,73,0.06); margin-bottom: 2rem; }
+    #dashboard-app-container .stats-card {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: #ffffff;
+      border-radius: 14px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(30, 60, 114, 0.35);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    #dashboard-app-container .stats-card:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3); }
+    #dashboard-app-container .stats-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.9; }
+    #dashboard-app-container .stats-card h3 { font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; }
+    #dashboard-app-container .stats-card p { margin: 0; font-size: 0.95rem; opacity: 0.95; }
+    #dashboard-app-container .stats-card.success {
+      background: linear-gradient(135deg, #2f6b4f 0%, #4f8f6f 100%);
+      box-shadow: 0 8px 20px rgba(47, 107, 79, 0.35);
+    }
+    #dashboard-app-container .stats-card.warning {
+      background: linear-gradient(135deg, #b79b4a 0%, #d8c27a 100%);
+      box-shadow: 0 5px 16px rgba(183, 155, 74, 0.3);
+      color: #fff;
+    }
+    #dashboard-app-container .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      width: 100%;
+    }
+    #dashboard-app-container .section-title > div:first-child { flex-shrink: 0; }
+    #dashboard-app-container .section-title i { margin-right: 0.5rem; color: #0d6efd; }
+    #dashboard-app-container .btn-refresh:hover { 
+      background: #0a58ca; 
+      transform: translateY(-2px); 
+      box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3); 
+      color: white; 
+    }
+    #dashboard-app-container .table-container { overflow-x: auto; margin-top: 1rem; }
+    #dashboard-app-container table.dataTable { border-collapse: separate !important; border-spacing: 0; }
+    #dashboard-app-container table.dataTable thead th { background: #0d6efd; color: white; font-weight: 600; border: none; padding: 1rem 0.75rem; white-space: nowrap; }
+    #dashboard-app-container table.dataTable thead th:first-child { border-radius: 8px 0 0 0; }
+    #dashboard-app-container table.dataTable thead th:last-child { border-radius: 0 8px 0 0; }
+    #dashboard-app-container table.dataTable tbody td { padding: 0.875rem 0.75rem; vertical-align: middle; }
+    #dashboard-app-container .loading { text-align: center; padding: 3rem; }
+    #dashboard-app-container .loading .spinner-border { width: 3rem; height: 3rem; border-width: 0.3rem; }
+    #dashboard-app-container .action-buttons { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+    #dashboard-app-container .badge-status { padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.85rem; display: inline-block; min-width: 100px; text-align: center; }
+    #dashboard-app-container .badge-diterima { background: #198754; color: white; }
+    #dashboard-app-container .badge-ditolak { background: #dc3545; color: white; }
+    #dashboard-app-container .badge-perbaikan { background: #ffc107; color: #000; }
+    #dashboard-app-container .badge-pending { background: #6c757d; color: white; }
+    
+    #dashboard-app-container .btn-keterangan {
+      background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #dashboard-app-container .btn-keterangan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+      background: linear-gradient(135deg, #0b5ed7 0%, #0950b8 100%);
+    }
+    #dashboard-app-container .btn-keterangan i { margin-right: 0.5rem; font-size: 1rem; }
+    
+    #dashboard-app-container .keterangan-empty-cell { color: #adb5bd; font-style: italic; font-size: 0.85rem; text-align: center; }
+    
+    #dashboard-app-container .btn-detail-judul {
+      background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+    }
+    #dashboard-app-container .btn-detail-judul:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); }
+    #dashboard-app-container .btn-detail-judul i { margin-right: 0.5rem; }
+    
+    #dashboard-app-container .judul-item { margin-bottom: 1rem; padding: 0.75rem; background: #f8f9fa; border-left: 3px solid #0d6efd; border-radius: 4px; }
+    #dashboard-app-container .judul-item:last-child { margin-bottom: 0; }
+    #dashboard-app-container .judul-title { font-weight: 700; color: #0d6efd; margin-bottom: 0.5rem; font-size: 0.95rem; }
+    #dashboard-app-container .rumusan-item { margin-left: 0.5rem; margin-bottom: 0.3rem; font-size: 0.88rem; color: #495057; line-height: 1.6; }
+    #dashboard-app-container .dosen-approved-cell { font-weight: 600; color: #198754; background: #d1e7dd; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.88rem; text-align: center; }
+    #dashboard-app-container .btn-action { padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 6px; font-weight: 500; border: none; transition: all 0.2s ease; cursor: pointer; }
+    #dashboard-app-container .btn-revisi { background: #ffc107; color: #000; }
+    #dashboard-app-container .btn-revisi:hover { background: #ffca2c; transform: translateY(-2px); }
+    #dashboard-app-container .btn-ajukan-ulang { background: #dc3545; color: white; }
+    #dashboard-app-container .btn-ajukan-ulang:hover { background: #bb2d3b; transform: translateY(-2px); }
+    #dashboard-app-container .btn-upload { background: darkslateblue; color: white; }
+    #dashboard-app-container .btn-upload:hover { background: darkblue; transform: translateY(-2px); }
+    #dashboard-app-container .btn-view { background: #6c757d; color: white; }
+    #dashboard-app-container .btn-view:hover { background: #5c636a; transform: translateY(-2px); }
+    #dashboard-app-container .btn-completed { background: #6c757d; color: white; cursor: not-allowed; opacity: 0.7; }
+    #dashboard-app-container .btn-completed:hover { background: #6c757d; transform: none; }
+    #dashboard-app-container .empty-state { text-align: center; padding: 3rem 1rem; color: #6c757d; }
+    #dashboard-app-container .empty-state i { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+    #dashboard-app-container .dataTables_wrapper .dataTables_length select, #dashboard-app-container .dataTables_wrapper .dataTables_filter input { border: 1px solid #dee2e6; border-radius: 6px; padding: 0.375rem 0.75rem; }
+    #dashboard-app-container .dataTables_wrapper .dataTables_paginate .paginate_button.current { background: #0d6efd !important; border-color: #0d6efd !important; color: white !important; border-radius: 6px; }
+    #dashboard-app-container .dataTables_wrapper .dataTables_paginate .paginate_button:hover { background: #e9ecef !important; border-color: #dee2e6 !important; color: #212529 !important; }
+    
+    #dashboard-app-container .btn-keterangan-danger {
+      background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%);
+      box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+    }
+    #dashboard-app-container .btn-keterangan-danger:hover {
+      background: linear-gradient(135deg, #bb2d3b 0%, #a02834 100%);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    #dashboard-app-container .search-container {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      flex-wrap: nowrap;
+      margin: 0;
+      padding: 0;
+    }
+    #dashboard-app-container .btn-refresh {
+      border-radius: 5px;
+      color: white;
+      background: #0a58ca; 
+      height: 36px;
+      min-height: 36px;
+      max-height: 36px;
+      padding: 0.375rem 0.875rem;
+      line-height: 1.5;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    #dashboard-app-container .btn-search {
+      border-radius: 5px;
+      color: white;
+      background: #146c43;
+      height: 36px;
+      min-height: 36px;
+      max-height: 36px;
+      padding: 0.375rem 0.875rem;
+      line-height: 1.5;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    #dashboard-app-container .btn-clear-search {
+      border-radius: 5px;
+      background: #5c636a;
+      color: white;
+      height: 36px;
+      min-height: 36px;
+      max-height: 36px;
+      padding: 0.375rem 0.875rem;
+      line-height: 1.5;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    #dashboard-app-container .section-title .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      flex-grow: 1;
+      min-height: 36px;
+    }
+    #dashboard-app-container .search-input {
+      height: 36px;
+      min-height: 36px;
+      max-height: 36px;
+      padding: 0.375rem 0.75rem;
+      line-height: 1.5;
+      margin: 0;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      width: 220px;
+      flex-shrink: 0;
+    }
+    #dashboard-app-container .search-input:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+    #dashboard-app-container .btn-search:hover { background: #146c43; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3); }
+    #dashboard-app-container .btn-search i, #dashboard-app-container .btn-clear-search i, #dashboard-app-container .btn-refresh i { font-size: 0.875rem; line-height: 1; margin: 0; }
+    #dashboard-app-container .btn-clear-search:hover { background: #5c636a; transform: translateY(-2px); }
+    @media (max-width: 768px) {
+      #dashboard-app-container .section-title { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+      #dashboard-app-container .section-title > div:first-child { text-align: center; }
+      #dashboard-app-container .section-title .action-buttons { justify-content: center; flex-direction: column; gap: 0.75rem; }
+      #dashboard-app-container .search-container { width: 100%; justify-content: center; }
+      #dashboard-app-container .search-input { width: 100%; max-width: 300px; flex-grow: 1; }
+      #dashboard-app-container .btn-refresh { align-self: center; }
+    }
+    #dashboard-app-container .section-title * { box-sizing: border-box; }
+    #dashboard-app-container .section-title .action-buttons * { vertical-align: middle; box-sizing: border-box; }
+    #dashboard-app-container .highlight-search { background-color: #fff3cd; font-weight: bold; padding: 2px 4px; border-radius: 3px; }
+    
+    /* Modal Styles */
+    .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999999; justify-content: center; align-items: center; animation: fadeIn 0.3s ease; }
+    .custom-modal-overlay.active { display: flex; }
+    .custom-modal { background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); max-width: 90%; max-height: 90vh; overflow: auto; animation: slideUp 0.3s ease; }
+    .custom-modal.modal-lg { width: 800px; }
+    .custom-modal.modal-md { width: 500px; }
+    .custom-modal.modal-sm { width: 450px; }
+    .custom-modal-header { background: #0d6efd; color: white; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
+    .custom-modal-header.danger { background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%); }
+    .custom-modal-title { font-size: 1.15rem; font-weight: 600; margin: 0; display: flex; align-items: center; }
+    .custom-modal-close { background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.2s; }
+    .custom-modal-close:hover { background: rgba(255, 255, 255, 0.2); }
+    .custom-modal-body { padding: 1.5rem; }
+    .custom-modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #dee2e6; display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .form-label { font-weight: 500; margin-bottom: 0.5rem; display: block; color: #212529; }
+    .form-select, .form-control { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #dee2e6; border-radius: 6px; font-size: 1rem; }
+    .form-control:focus, .form-select:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+    .mb-3 { margin-bottom: 1rem; }
+    .btn { padding: 0.5rem 1rem; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #5c636a; }
+    .btn-primary { background: #0d6efd; color: white; }
+    .btn-primary:hover { background: #0a58ca; }
+    .btn-primary:disabled, .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .file-upload-area { border: 2px dashed #dee2e6; border-radius: 8px; padding: 2rem; text-align: center; transition: all 0.3s ease; cursor: pointer; }
+    .file-upload-area:hover { border-color: #0d6efd; background: #f8f9fa; }
+    .file-upload-area.drag-over { border-color: #0d6efd; background: #e7f1ff; }
+    .alert { padding: 1rem; border-radius: 6px; margin-bottom: 1rem; }
+    .alert-info { background: #cfe2ff; border: 1px solid #b6d4fe; color: #084298; }
+    .alert-warning { background: #fff3cd; border: 1px solid #ffecb5; color: #664d03; }
+    .alert-success { background: #d1e7dd; border: 1px solid #badbcc; color: #0f5132; }
+    .d-flex { display: flex; }
+    .align-items-center { align-items: center; }
+    .me-2 { margin-right: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+    .text-muted { color: #6c757d; }
+    .small { font-size: 0.875rem; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .spinner-border { display: inline-block; width: 1rem; height: 1rem; vertical-align: text-bottom; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border 0.75s linear infinite; }
+    .spinner-border-sm { width: 0.875rem; height: 0.875rem; border-width: 0.1em; }
+    @keyframes spinner-border { to { transform: rotate(360deg); } }
+    .text-center { text-align: center; }
+    .fw-bold { font-weight: 700; }
+    .progress { height: 1rem; background-color: #e9ecef; border-radius: 0.25rem; overflow: hidden; }
+    .progress-bar { height: 100%; background-color: #0d6efd; transition: width 0.6s ease; }
+    .progress-bar-striped { background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); background-size: 1rem 1rem; }
+    .progress-bar-animated { animation: progress-bar-stripes 1s linear infinite; }
+    @keyframes progress-bar-stripes { 0% { background-position: 1rem 0; } 100% { background-position: 0 0; } }
+    
+    .detail-content { max-height: 60vh; overflow-y: auto; }
+    .student-info { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #0d6efd; }
+    .student-info-item { margin-bottom: 0.5rem; }
+    .student-info-label { font-weight: 600; color: #495057; margin-right: 0.5rem; }
+    .student-info-value { color: #212529; }
+    
+    .status-detail-content { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }
+    .status-detail-content.success { border-left: 4px solid #198754; }
+    .status-detail-content.danger { border-left: 4px solid #dc3545; background: #f8d7da; }
+    .status-detail-content.warning { border-left: 4px solid #fd7e14; background: #fff3cd; }
+    .status-detail-content.verifikator { border-left: 4px solid #6f42c1; background: #f3f0ff; }
+    .status-detail-header { display: flex; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; }
+    .status-detail-header.success { border-bottom: 2px solid #198754; }
+    .status-detail-header.danger { border-bottom: 2px solid #dc3545; }
+    .status-detail-header.warning { border-bottom: 2px solid #fd7e14; }
+    .status-detail-header.verifikator { border-bottom: 2px solid #6f42c1; }
+    .status-detail-header i { font-size: 1.5rem; margin-right: 0.75rem; }
+    .status-detail-header.success i { color: #198754; }
+    .status-detail-header.danger i { color: #dc3545; }
+    .status-detail-header.warning i { color: #fd7e14; }
+    .status-detail-header.verifikator i { color: #6f42c1; }
+    .status-detail-header h6 { margin: 0; font-weight: 700; font-size: 1.1rem; }
+    .status-detail-header.success h6 { color: #198754; }
+    .status-detail-header.danger h6 { color: #dc3545; }
+    .status-detail-header.warning h6 { color: #fd7e14; }
+    .status-detail-header.verifikator h6 { color: #6f42c1; }
+    .status-judul-text { font-size: 1rem; line-height: 1.6; color: #212529; font-weight: 600; margin-bottom: 1rem; padding: 0.75rem; background: white; border-radius: 6px; border-left: 3px solid #0d6efd; }
+    .status-rumusan-item { margin-bottom: 0.75rem; padding: 0.75rem; background: white; border-radius: 6px; border-left: 3px solid #ffc107; }
+    .status-rumusan-label { font-weight: 700; color: #495057; margin-bottom: 0.5rem; display: flex; align-items: center; }
+    .status-rumusan-label i { color: #ffc107; margin-right: 0.5rem; }
+    .status-rumusan-text { color: #212529; line-height: 1.6; font-size: 0.95rem; }
+    .status-keterangan-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #dee2e6; }
+    .status-keterangan-header { font-weight: 700; color: #495057; margin-bottom: 0.75rem; display: flex; align-items: center; font-size: 1rem; }
+    .status-keterangan-header i { margin-right: 0.5rem; font-size: 1.25rem; }
+    .status-keterangan-header.danger i { color: #dc3545; }
+    .status-keterangan-header.warning i { color: #fd7e14; }
+    .status-keterangan-header.success i { color: #198754; }
+    .status-keterangan-header.verifikator i { color: #6f42c1; }
+    .status-keterangan-content { background: white; padding: 1rem; border-radius: 6px; line-height: 1.6; color: #212529; font-size: 0.95rem; }
+    .status-keterangan-content.danger { border-left: 3px solid #dc3545; }
+    .status-keterangan-content.warning { border-left: 3px solid #fd7e14; }
+    .status-keterangan-content.success { border-left: 3px solid #198754; }
+    .status-keterangan-content.verifikator { border-left: 3px solid #6f42c1; }
+    .status-ditolak-message { background: white; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #dc3545; margin-bottom: 1rem; }
+    .status-ditolak-message p { margin: 0; color: #721c24; font-weight: 600; line-height: 1.6; font-size: 1rem; }
+    .status-ditolak-message i { color: #dc3545; margin-right: 0.5rem; font-size: 1.25rem; }
+    
+    #dashboard-app-container .btn-lihat-status {
+      background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #dashboard-app-container .btn-lihat-status:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4); background: linear-gradient(135deg, #146c43 0%, #0f5132 100%); }
+    #dashboard-app-container .btn-lihat-status i { margin-right: 0.5rem; font-size: 1rem; }
+    #dashboard-app-container .btn-lihat-status-danger { background: linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%); box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3); }
+    #dashboard-app-container .btn-lihat-status-danger:hover { background: linear-gradient(135deg, #bb2d3b 0%, #a02834 100%); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); }
+    #dashboard-app-container .btn-lihat-status-warning { background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%); box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3); }
+    #dashboard-app-container .btn-lihat-status-warning:hover { background: linear-gradient(135deg, #e8590c 0%, #d63384 100%); box-shadow: 0 4px 12px rgba(253, 126, 20, 0.4); }
+    #dashboard-app-container .btn-catatan-verifikator {
+      background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #dashboard-app-container .btn-catatan-verifikator:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4); background: linear-gradient(135deg, #5a32a3 0%, #4a2885 100%); }
+    #dashboard-app-container .btn-catatan-verifikator i { margin-right: 0.5rem; font-size: 1rem; }
+
+    /* ============================================================
+       Modal Upload dengan Perubahan Judul
+       ============================================================ */
+    .judul-perubahan-section {
+      background: #fff8e1;
+      border: 2px solid #ffc107;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .judul-perubahan-section .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #ffc107;
+    }
+    .judul-perubahan-section .section-header i {
+      font-size: 1.25rem;
+      color: #e6ac00;
+      margin-right: 0.5rem;
+    }
+    .judul-perubahan-section .section-header h6 {
+      margin: 0;
+      font-weight: 700;
+      color: #7a5c00;
+      font-size: 1rem;
+    }
+    .judul-perubahan-section .form-label {
+      color: #5a4200;
+      font-size: 0.9rem;
+    }
+    .judul-perubahan-section .form-control {
+      border-color: #ffc107;
+      background: #fffdf0;
+    }
+    .judul-perubahan-section .form-control:focus {
+      border-color: #e6ac00;
+      box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+    .upload-section-divider {
+      display: flex;
+      align-items: center;
+      margin: 1.25rem 0;
+      gap: 0.75rem;
+    }
+    .upload-section-divider::before,
+    .upload-section-divider::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(to right, transparent, #dee2e6);
+    }
+    .upload-section-divider::after {
+      background: linear-gradient(to left, transparent, #dee2e6);
+    }
+    .upload-section-divider span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6c757d;
+      background: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      border: 1px solid #dee2e6;
+      white-space: nowrap;
+    }
+    .upload-with-changes-body {
+      max-height: 75vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .upload-with-changes-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .upload-with-changes-body::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    .upload-with-changes-body::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    /* Info box judul yang disetujui */
+    .approved-judul-info {
+      background: #d1e7dd;
+      border: 1px solid #a3cfbb;
+      border-left: 4px solid #198754;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .approved-judul-info .info-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #0f5132;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .approved-judul-info .info-label i {
+      margin-right: 0.4rem;
+    }
+    .approved-judul-info .info-content {
+      color: #1a6b44;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Pilih judul yang mau diubah */
+    .judul-selector-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .judul-tab-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      background: white;
+      color: #6c757d;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .judul-tab-btn:hover {
+      border-color: #ffc107;
+      color: #7a5c00;
+      background: #fff8e1;
+    }
+    .judul-tab-btn.active {
+      border-color: #ffc107;
+      background: #fff3cd;
+      color: #7a5c00;
+    }
+
+    /* ============================================================
+       FITUR SEARCH JUDUL DISETUJUI
+       ============================================================ */
+    #judul-search-section {
+      background: linear-gradient(135deg, #0f2d6e 0%, #1a4db5 50%, #0d6efd 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 32px rgba(13, 110, 253, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    #judul-search-section::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    #judul-search-section::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: -40px;
+      width: 150px; height: 150px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    #judul-search-section .search-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      backdrop-filter: blur(4px);
+    }
+    #judul-search-section .search-badge i {
+      margin-right: 0.4rem;
+      font-size: 0.85rem;
+    }
+    #judul-search-section h4 {
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    #judul-search-section .search-subtitle {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.88rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    #judul-search-section .search-input-wrapper {
+      display: flex;
+      gap: 0.6rem;
+      position: relative;
+      z-index: 1;
+    }
+    #judul-search-section #judulSearchInput {
+      flex: 1;
+      height: 50px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 0 1.1rem 0 3rem;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.95);
+      color: #212529;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    #judul-search-section #judulSearchInput:focus {
+      outline: none;
+      border-color: #fff;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    #judul-search-section #judulSearchInput::placeholder {
+      color: #adb5bd;
+      font-size: 0.88rem;
+    }
+    #judul-search-section .search-icon-left {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 1rem;
+      z-index: 2;
+      pointer-events: none;
+    }
+    #judul-search-section .input-wrap {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+    #judul-search-section .btn-cari-judul {
+      height: 50px;
+      padding: 0 1.5rem;
+      background: #ffffff;
+      color: #0d6efd;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+    #judul-search-section .btn-cari-judul:hover {
+      background: #e8f0fe;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    #judul-search-section .btn-reset-judul {
+      height: 50px;
+      padding: 0 1.1rem;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: none;
+      align-items: center;
+      gap: 0.4rem;
+      white-space: nowrap;
+      backdrop-filter: blur(4px);
+    }
+    #judul-search-section .btn-reset-judul:hover {
+      background: rgba(255,255,255,0.28);
+      transform: translateY(-2px);
+    }
+    #judul-search-section .btn-reset-judul.visible {
+      display: inline-flex;
+    }
+    .judul-search-hint {
+      display: flex;
+      gap: 1.25rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .judul-search-hint-item {
+      display: flex;
+      align-items: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.78rem;
+      gap: 0.35rem;
+    }
+    .judul-search-hint-item i { font-size: 0.85rem; }
+
+    /* Hasil Pencarian */
+    #judulSearchResults {
+      margin-top: 1.5rem;
+      display: none;
+    }
+    #judulSearchResults.visible { display: block; }
+    .search-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .search-result-header .result-count {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+    }
+    .search-result-header .result-count span {
+      background: rgba(255,255,255,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .judul-result-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .judul-result-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      border-left: 4px solid #198754;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      animation: cardFadeIn 0.3s ease forwards;
+    }
+    .judul-result-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.16);
+    }
+    @keyframes cardFadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .judul-result-card .card-tag {
+      display: inline-flex;
+      align-items: center;
+      background: #d1e7dd;
+      color: #0f5132;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .judul-result-card .card-tag i { margin-right: 0.3rem; }
+    .judul-result-card .card-judul {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.55;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px dashed #dee2e6;
+    }
+    .judul-result-card .card-judul mark {
+      background: #fff3cd;
+      color: #7a5c00;
+      border-radius: 3px;
+      padding: 1px 3px;
+      font-weight: 800;
+    }
+    .judul-result-card .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .judul-result-card .card-meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: #495057;
+    }
+    .judul-result-card .card-meta-item i {
+      color: #0d6efd;
+      margin-top: 2px;
+      flex-shrink: 0;
+      font-size: 0.88rem;
+    }
+    .judul-result-card .card-meta-item strong {
+      color: #212529;
+      font-weight: 600;
+    }
+    .judul-result-card .card-meta-item .meta-value {
+      color: #495057;
+      line-height: 1.4;
+    }
+    .judul-result-card .card-rumusan {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed #dee2e6;
+    }
+    .judul-result-card .card-rumusan-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .judul-result-card .card-rumusan-item {
+      font-size: 0.82rem;
+      color: #495057;
+      padding: 0.4rem 0.6rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      border-left: 3px solid #ffc107;
+      margin-bottom: 0.4rem;
+      line-height: 1.5;
+    }
+    .judul-result-card .card-rumusan-item:last-child { margin-bottom: 0; }
+    .no-judul-found {
+      background: rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 2.5rem;
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      backdrop-filter: blur(4px);
+    }
+    .no-judul-found i {
+      font-size: 3rem;
+      opacity: 0.6;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .no-judul-found h6 {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .no-judul-found p {
+      font-size: 0.85rem;
+      opacity: 0.75;
+      margin: 0;
+    }
+    @media (max-width: 768px) {
+      #judul-search-section { padding: 1.5rem; }
+      #judul-search-section .search-input-wrapper { flex-direction: column; }
+      #judul-search-section #judulSearchInput,
+      #judul-search-section .btn-cari-judul,
+      #judul-search-section .btn-reset-judul { width: 100%; }
+      #judul-search-section .input-wrap { width: 100%; }
+      .judul-result-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Pastikan SweetAlert selalu di atas semua modal */
+    .swal2-container {
+      z-index: 99999999 !important;
+    }
+    .swal2-backdrop-show {
+      z-index: 99999998 !important;
+    }
+
+    .swal-on-top {
+      z-index: 99999999 !important;
+    }
+  </style>
+</head>
+<body>
+<div id="dashboard-app-container">
+  <div class="app-content">
+    <div class="py-4 text-center">
+      <img src="https://hukum.upnvj.ac.id/wp-content/uploads/2025/10/WhatsApp-Image-2025-10-14-at-13.45.20-1.png" class="logo-upn" alt="Logo UPNVJ" style="width: 10%;">
+      <h3 style="font-family: roboto;" class="fw-bold mb-3">Dashboard Usulan Judul & Pembimbing Tugas Akhir</h3>
+      <p class="text-muted">Program Studi Hukum Program Sarjana<br>Fakultas Hukum Universitas Pembangunan Nasional "Veteran" Jakarta</p>
+    </div>
+
+    <div class="container mb-5">
+      <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+          <div class="stats-card">
+            <div class="icon"><i class="bi bi-people-fill"></i></div>
+            <h3 id="totalPendaftar">0</h3>
+            <p>Total Pendaftar</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stats-card success">
+            <div class="icon"><i class="bi bi-calendar-week-fill"></i></div>
+            <h3 id="mingguIni">0</h3>
+            <p>Pendaftar Minggu Ini</p>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stats-card warning">
+            <div class="icon"><i class="bi bi-calendar-month-fill"></i></div>
+            <h3 id="bulanIni">0</h3>
+            <p>Pendaftar Bulan Ini</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================
+           FITUR SEARCH JUDUL DISETUJUI
+           ============================================================ -->
+      <div id="judul-search-section">
+        <div class="search-badge">
+          <i class="bi bi-patch-check-fill"></i> Fitur Pencarian Judul
+        </div>
+
+        <h4><i class="bi bi-search me-2"></i>Cari Judul Tugas Akhir yang Disetujui</h4>
+        <p class="search-subtitle">
+          Gunakan fitur ini untuk mencari judul tugas akhir yang telah disetujui oleh Majelis TA.<br>
+          Mahasiswa dan dosen dapat menggunakan fitur ini untuk mengecek ketersediaan dan keunikan judul.
+        </p>
+
+        <div class="search-input-wrapper">
+          <div class="input-wrap">
+            <i class="bi bi-search search-icon-left" style="margin-top: -15px !important;"></i>
+            <input
+              type="text"
+              id="judulSearchInput"
+              placeholder="Ketik kata kunci judul tugas akhir yang ingin dicari..."
+              autocomplete="off"
+            >
+          </div>
+          <button class="btn-cari-judul" onclick="JudulSearch.cari()">
+            <i class="bi bi-search"></i> Cari Judul
+          </button>
+          <button class="btn-reset-judul" id="btnResetJudulSearch" onclick="JudulSearch.reset()">
+            <i class="bi bi-x-circle"></i> Reset
+          </button>
+        </div>
+
+        <div class="judul-search-hint">
+          <div class="judul-search-hint-item">
+            <i class="bi bi-lightbulb-fill"></i>
+            <span>Cari berdasarkan kata kunci judul</span>
+          </div>
+          <div class="judul-search-hint-item">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>Hanya menampilkan judul yang sudah disetujui</span>
+          </div>
+          <div class="judul-search-hint-item">
+            <i class="bi bi-keyboard-fill"></i>
+            <span>Tekan Enter untuk mencari</span>
+          </div>
+        </div>
+
+        <div id="judulSearchResults"></div>
+      </div>
+
+      <div class="dashboard-section">
+        <div class="section-title">
+          <div><i class="bi bi-table"></i> Data Pendaftaran</div>
+          <div class="action-buttons">
+            <div class="search-container">
+              <input type="text" class="search-input" id="searchInput" placeholder="Cari berdasarkan NIM atau Nama...">
+              <button class="btn-search" onclick="DashboardApp.performSearch()">
+                <i style="color: white;" class="bi bi-search me-1"></i> Cari
+              </button>
+              <button class="btn-clear-search" id="btnClearSearch" onclick="DashboardApp.clearSearch()" style="display: none;">
+                <i style="color: white;" class="bi bi-x-circle me-1"></i> Reset
+              </button>
+            </div>
+            <button class="btn-refresh" onclick="DashboardApp.loadData()">
+              <i style="color: white;" class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3 text-muted">Memuat data pendaftaran...</p>
+        </div>
+
+        <div id="tableContainer" class="table-container" style="display: none;">
+          <table id="tablePendaftaran" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th width="12%">Data Mahasiswa</th>
+                <th width="8%">Konsentrasi</th>
+                <th width="12%">Usulan Dosen Pembimbing</th>
+                <th width="10%">Usulan Judul TA & Rumusan Masalah</th>
+                <th width="10%">Status & Catatan</th>
+                <th width="14%">Dosen Pembimbing yang Di Setujui</th>
+                <th width="14%">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <i class="bi bi-inbox"></i>
+          <h5>Belum Ada Data Pendaftaran</h5>
+          <p class="text-muted">Data pendaftaran akan muncul di sini setelah mahasiswa melakukan pengajuan</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail Judul -->
+  <div class="custom-modal-overlay" id="modalDetailJudulOverlay">
+    <div class="custom-modal modal-lg">
+      <div class="custom-modal-header">
+        <h5 class="custom-modal-title"><i class="bi bi-file-text me-2"></i>Detail Usulan Judul Tugas Akhir & Rumusan Masalah</h5>
+        <button class="custom-modal-close" onclick="DashboardApp.closeDetailJudulModal()">×</button>
+      </div>
+      <div class="custom-modal-body detail-content">
+        <div class="student-info">
+          <div class="student-info-item">
+            <span class="student-info-label"><i class="bi bi-person-badge me-1"></i>NIM:</span>
+            <span class="student-info-value" id="detailNIM">-</span>
+          </div>
+          <div class="student-info-item">
+            <span class="student-info-label"><i class="bi bi-person me-1"></i>Nama:</span>
+            <span class="student-info-value" id="detailNama">-</span>
+          </div>
+          <div class="student-info-item">
+            <span class="student-info-label"><i class="bi bi-bookmark me-1"></i>Konsentrasi:</span>
+            <span class="student-info-value" id="detailKonsentrasi">-</span>
+          </div>
+          <div class="student-info-item">
+            <span class="student-info-label"><i class="bi bi-person-workspace me-1"></i>Dosen Pembimbing:</span>
+            <span class="student-info-value" id="detailDosen">-</span>
+          </div>
+        </div>
+        <div id="detailJudulContent"></div>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="DashboardApp.closeDetailJudulModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Lihat Status -->
+  <div class="custom-modal-overlay" id="modalStatusOverlay">
+    <div class="custom-modal modal-md">
+      <div class="custom-modal-header" id="statusModalHeader">
+        <h5 class="custom-modal-title" id="statusModalTitle">
+          <i class="bi bi-info-circle-fill me-2"></i>Detail Status
+        </h5>
+        <button class="custom-modal-close" onclick="DashboardApp.closeStatusModal()">×</button>
+      </div>
+      <div class="custom-modal-body">
+        <div id="statusDetailContent"></div>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="DashboardApp.closeStatusModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Revisi -->
+  <div class="custom-modal-overlay" id="modalRevisiOverlay">
+    <div class="custom-modal modal-lg">
+      <div class="custom-modal-header">
+        <h5 class="custom-modal-title"><i class="bi bi-pencil-square me-2"></i>Form Revisi</h5>
+        <button class="custom-modal-close" onclick="DashboardApp.closeRevisiModal()">×</button>
+      </div>
+      <div class="custom-modal-body">
+        <input type="hidden" id="revisiNIM">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Jenis Revisi</label>
+          <select class="form-select" id="jenisRevisi">
+            <option value="">-- Pilih Jenis Revisi --</option>
+            <option value="Revisi Judul TA 1">Revisi Perbaikan Penulisan Judul TA 1</option>
+            <option value="Revisi Judul TA 2">Revisi Perbaikan Penulisan Judul TA 2</option>
+            <option value="Revisi Judul TA 3">Revisi Perbaikan Penulisan Judul TA 3</option>
+            <option value="Revisi Rumusan Masalah 1 - Pada Judul TA 1">Revisi Rumusan Masalah 1 - Pada Judul TA 1</option>
+            <option value="Revisi Rumusan Masalah 2 - Pada Judul TA 1">Revisi Rumusan Masalah 2 - Pada Judul TA 1</option>
+            <option value="Revisi Rumusan Masalah 1 & 2 - Pada Judul TA 1">Revisi Rumusan Masalah 1 & 2 - Pada Judul TA 1</option>
+            <option value="Revisi Judul TA 1 beserta Rumusan Masalah 1 & 2">Revisi Judul TA 1 beserta Rumusan Masalah 1 & 2</option>
+            <option value="Revisi Rumusan Masalah 1 - Pada Judul TA 2">Revisi Rumusan Masalah 1 - Pada Judul TA 2</option>
+            <option value="Revisi Rumusan Masalah 2 - Pada Judul TA 2">Revisi Rumusan Masalah 2 - Pada Judul TA 2</option>
+            <option value="Revisi Rumusan Masalah 1 & 2 - Pada Judul TA 2">Revisi Rumusan Masalah 1 & 2 - Pada Judul TA 2</option>
+            <option value="Revisi Judul TA 2 beserta Rumusan Masalah 1 & 2">Revisi Judul TA 2 beserta Rumusan Masalah 1 & 2</option>
+            <option value="Revisi Rumusan Masalah 1 - Pada Judul TA 3">Revisi Rumusan Masalah 1 - Pada Judul TA 3</option>
+            <option value="Revisi Rumusan Masalah 2 - Pada Judul TA 3">Revisi Rumusan Masalah 2 - Pada Judul TA 3</option>
+            <option value="Revisi Judul TA 3 beserta Rumusan Masalah 1 & 2">Revisi Judul TA 3 beserta Rumusan Masalah 1 & 2</option>
+            <option value="Revisi Rumusan Masalah 1 & 2 - Pada Judul TA 3">Revisi Rumusan Masalah 1 & 2 - Pada Judul TA 3</option>
+          </select>
+        </div>
+        <div class="mb-3" id="inputJudulContainer" style="display: none;">
+          <label class="form-label fw-bold">Judul Baru</label>
+          <textarea class="form-control" id="judulBaru" rows="4" placeholder="Masukkan judul yang baru"></textarea>
+        </div>
+        <div class="mb-3" id="inputRumusanContainer" style="display: none;">
+          <label class="form-label fw-bold">Rumusan Masalah Baru</label>
+          <textarea class="form-control" id="rumusanBaru" rows="5" placeholder="Masukkan rumusan masalah yang baru"></textarea>
+        </div>
+        <div class="mb-3" id="inputJudulDanRumusanContainer" style="display: none;">
+          <div class="alert alert-warning" style="padding: 0.75rem 1rem; margin-bottom: 1rem;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Revisi Lengkap:</strong> Isi judul baru beserta kedua rumusan masalah di bawah ini.
+          </div>
+          <label class="form-label fw-bold">Judul Baru</label>
+          <textarea class="form-control mb-3" id="judulBaruLengkap" rows="3" placeholder="Masukkan judul yang baru"></textarea>
+          <label class="form-label fw-bold">Rumusan Masalah 1 Baru</label>
+          <textarea class="form-control mb-3" id="rumusanBaruLengkap1" rows="3" placeholder="Masukkan rumusan masalah 1 yang baru"></textarea>
+          <label class="form-label fw-bold">Rumusan Masalah 2 Baru</label>
+          <textarea class="form-control" id="rumusanBaruLengkap2" rows="3" placeholder="Masukkan rumusan masalah 2 yang baru"></textarea>
+        </div>
+        <div class="mb-3" id="inputRumusanGandaContainer" style="display: none;">
+          <div class="alert alert-warning" style="padding: 0.75rem 1rem; margin-bottom: 1rem;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Revisi Ganda:</strong> Isi kedua rumusan masalah di bawah ini.
+          </div>
+          <label class="form-label fw-bold">Rumusan Masalah 1 Baru</label>
+          <textarea class="form-control mb-3" id="rumusanBaru1" rows="4" placeholder="Masukkan rumusan masalah 1 yang baru"></textarea>
+          <label class="form-label fw-bold">Rumusan Masalah 2 Baru</label>
+          <textarea class="form-control" id="rumusanBaru2" rows="4" placeholder="Masukkan rumusan masalah 2 yang baru"></textarea>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="DashboardApp.closeRevisiModal()">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnSubmitRevisi" onclick="DashboardApp.submitRevisi()">
+          <i class="bi bi-check-circle me-1"></i> Simpan Revisi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Upload Biasa (tanpa perubahan) -->
+  <div class="custom-modal-overlay" id="modalUploadOverlay">
+    <div class="custom-modal modal-md">
+      <div class="custom-modal-header">
+        <h5 class="custom-modal-title"><i class="bi bi-cloud-upload me-2"></i>Upload Kesediaan Pembimbing</h5>
+        <button class="custom-modal-close" onclick="DashboardApp.closeUploadModal()">×</button>
+      </div>
+      <div class="custom-modal-body">
+        <input type="hidden" id="uploadNIM">
+        <div id="uploadAlert" class="alert alert-warning" style="display: none; margin-bottom: 1rem;">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <span id="uploadAlertText"></span>
+        </div>
+        <div class="file-upload-area" id="fileUploadArea">
+          <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: #0d6efd;"></i>
+          <p class="mt-3 mb-2 fw-bold">Klik atau Drag & Drop File di Sini</p>
+          <p class="text-muted small">Format: PDF | Maksimal: 1 MB</p>
+          <input type="file" id="fileInput" accept=".pdf" style="display: none;">
+        </div>
+        <div id="fileInfo" class="mt-3" style="display: none;">
+          <div class="alert alert-info d-flex align-items-center">
+            <i class="bi bi-file-pdf-fill me-2" style="font-size: 1.5rem;"></i>
+            <div>
+              <strong id="fileName"></strong><br>
+              <small id="fileSize"></small>
+            </div>
+          </div>
+        </div>
+        <div id="uploadProgress" class="mt-3" style="display: none;">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+          </div>
+          <p class="text-center mt-2 small text-muted">Mengupload file...</p>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="DashboardApp.closeUploadModal()">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnUpload" onclick="DashboardApp.submitUpload()" disabled>
+          <i class="bi bi-upload me-1"></i> Upload File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Upload dengan Perubahan Judul -->
+  <div class="custom-modal-overlay" id="modalUploadWithChangesOverlay">
+    <div class="custom-modal modal-lg">
+      <div class="custom-modal-header" style="background: linear-gradient(135deg, #e67e00 0%, #c96800 100%);">
+        <h5 class="custom-modal-title">
+          <i class="bi bi-pencil-square me-2"></i>Perubahan Judul Tugas Akhir
+        </h5>
+        <button class="custom-modal-close" onclick="DashboardApp.closeUploadWithChangesModal()">×</button>
+      </div>
+      <div class="custom-modal-body upload-with-changes-body">
+
+        <input type="hidden" id="uploadWithChangesNIM">
+        <input type="hidden" id="uploadWithChangesJudulNum">
+        <input type="hidden" id="uploadWithChangesStatusDisetujui">
+
+        <div class="approved-judul-info" id="approvedJudulInfo">
+          <div class="info-label"><i class="bi bi-check-circle-fill"></i> Judul yang Disetujui Saat Ini</div>
+          <div class="info-content" id="approvedJudulText">-</div>
+        </div>
+
+        <div class="alert" style="background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #e6ac00; padding: 0.875rem 1rem; margin-bottom: 1.25rem;">
+          <div style="font-weight: 700; color: #7a5c00; margin-bottom: 0.25rem;">
+            <i class="bi bi-info-circle-fill me-2"></i>Perhatian
+          </div>
+          <div style="color: #5a4200; font-size: 0.9rem; line-height: 1.5;">
+            Isikan judul tugas akhir final beserta rumusan masalah 1 & 2 yang sudah disepakati bersama dosen pembimbing. Data ini akan menimpa judul yang sebelumnya disetujui.
+          </div>
+        </div>
+
+        <div class="judul-perubahan-section">
+          <div class="section-header">
+            <i class="bi bi-pencil-fill"></i>
+            <h6>Isi Judul TA Final & Rumusan Masalah</h6>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-file-text me-1"></i>Judul Tugas Akhir Final
+              <span style="color: #dc3545;">*</span>
+            </label>
+            <textarea class="form-control" id="changesJudul" rows="3"
+              placeholder="Masukkan judul TA yang sudah final dan disepakati dengan dosen pembimbing..."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-1-circle me-1"></i>Rumusan Masalah 1
+              <span style="color: #dc3545;">*</span>
+            </label>
+            <textarea class="form-control" id="changesRumusan1" rows="2"
+              placeholder="Masukkan rumusan masalah 1 yang sudah final..."></textarea>
+          </div>
+
+          <div class="mb-3" style="margin-bottom: 0 !important;">
+            <label class="form-label fw-bold">
+              <i class="bi bi-2-circle me-1"></i>Rumusan Masalah 2
+              <span style="color: #dc3545;">*</span>
+            </label>
+            <textarea class="form-control" id="changesRumusan2" rows="2"
+              placeholder="Masukkan rumusan masalah 2 yang sudah final..."></textarea>
+          </div>
+        </div>
+
+        <div class="upload-section-divider">
+          <span><i class="bi bi-cloud-upload me-1"></i>Upload Kesediaan Pembimbing</span>
+        </div>
+
+        <div id="uploadWithChangesAlert" class="alert" style="display: none; margin-bottom: 1rem;"></div>
+
+        <div class="file-upload-area" id="fileUploadAreaChanges">
+          <i class="bi bi-cloud-arrow-up" style="font-size: 2.5rem; color: #0d6efd;"></i>
+          <p class="mt-2 mb-1 fw-bold">Klik atau Drag & Drop File di Sini</p>
+          <p class="text-muted small">Format: PDF | Maksimal: 1 MB <span style="color: #dc3545; font-weight: 600;">*Wajib</span></p>
+          <input type="file" id="fileInputChanges" accept=".pdf" style="display: none;">
+        </div>
+
+        <div id="fileInfoChanges" class="mt-3" style="display: none;">
+          <div class="alert alert-info d-flex align-items-center">
+            <i class="bi bi-file-pdf-fill me-2" style="font-size: 1.5rem;"></i>
+            <div>
+              <strong id="fileNameChanges"></strong><br>
+              <small id="fileSizeChanges"></small>
+            </div>
+          </div>
+        </div>
+
+        <div id="uploadProgressChanges" class="mt-3" style="display: none;">
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+          </div>
+          <p class="text-center mt-2 small text-muted">Mengupload file...</p>
+        </div>
+
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnBatalUploadChanges" onclick="DashboardApp.closeUploadWithChangesModal()">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnUploadWithChanges"
+          onclick="DashboardApp.submitUploadWithChanges()"
+          style="background: linear-gradient(135deg, #e67e00 0%, #c96800 100%); border: none;">
+          <i class="bi bi-check2-circle me-1"></i> Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajukan Ulang -->
+  <div class="custom-modal-overlay" id="modalAjukanUlangOverlay">
+    <div class="custom-modal modal-lg">
+      <div class="custom-modal-header">
+        <h5 class="custom-modal-title"><i class="bi bi-arrow-repeat me-2"></i>Form Pengajuan Ulang</h5>
+        <button class="custom-modal-close" onclick="DashboardApp.closeAjukanUlangModal()">×</button>
+      </div>
+      <div class="custom-modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <input type="hidden" id="ajukanUlangNIM">
+        
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Informasi:</strong> Silakan isi kembali judul tugas akhir dan rumusan masalah yang telah diperbaiki.
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Usulan Dosen Pembimbing <span style="color: red;">*</span></label>
+          <select class="form-select" id="ajukanUlangDosen" required>
+            <option value="">-- Pilih Dosen Pembimbing --</option>
+          </select>
+        </div>
+
+        <div class="mb-4" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 3px solid #0d6efd;">
+          <h6 class="fw-bold mb-3"><i class="bi bi-1-circle-fill me-2"></i>Judul Tugas Akhir 1</h6>
+          <div class="mb-3"><label class="form-label">Judul <span style="color: red;">*</span></label><textarea class="form-control" id="ajukanUlangJudul1" rows="3" required></textarea></div>
+          <div class="mb-3"><label class="form-label">Rumusan Masalah 1 <span style="color: red;">*</span></label><textarea class="form-control" id="ajukanUlangRumusan1_1" rows="2" required></textarea></div>
+          <div class="mb-3"><label class="form-label">Rumusan Masalah 2 <span style="color: red;">*</span></label><textarea class="form-control" id="ajukanUlangRumusan1_2" rows="2" required></textarea></div>
+        </div>
+
+        <div class="mb-4" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 3px solid #198754;">
+          <h6 class="fw-bold mb-3"><i class="bi bi-2-circle-fill me-2"></i>Judul Tugas Akhir 2</h6>
+          <div class="mb-3"><label class="form-label">Judul <span style="color: red;">*</span></label><textarea class="form-control" id="ajukanUlangJudul2" rows="3" required></textarea></div>
+          <div class="mb-3"><label class="form-label">Rumusan Masalah 1 <span style="color: red;">*</span></label><textarea class="form-control" id="ajukanUlangRumusan2_1" rows="2" required></textarea></div>
+          <div class="mb-3"><label class="form-label">Rumusan Masalah 2 <span style="color: red;">*</span></label><textarea class="form-control" id="ajukanUlangRumusan2_2" rows="2" required></textarea></div>
+        </div>
+
+        <div class="mb-4" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 3px solid #ffc107;">
+          <h6 class="fw-bold mb-3"><i class="bi bi-3-circle-fill me-2"></i>Judul Tugas Akhir 3 <span class="text-muted small">(Opsional)</span></h6>
+          <div class="mb-3"><label class="form-label">Judul</label><textarea class="form-control" id="ajukanUlangJudul3" rows="3"></textarea></div>
+          <div class="mb-3"><label class="form-label">Rumusan Masalah 1</label><textarea class="form-control" id="ajukanUlangRumusan3_1" rows="2"></textarea></div>
+          <div class="mb-3"><label class="form-label">Rumusan Masalah 2</label><textarea class="form-control" id="ajukanUlangRumusan3_2" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="DashboardApp.closeAjukanUlangModal()">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnSubmitAjukanUlang" onclick="DashboardApp.submitAjukanUlang()">
+          <i class="bi bi-send me-1"></i> Kirim Pengajuan Ulang
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script>
+const DashboardApp = (function() {
+
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyE_-SfS--2jczXRT-j0rb05ezG1KaixukThxjtReBo-MXyDj1FDFQEPOVfHra7G0KkUA/exec';
+  const LOAD_TIMEOUT_MS = 45000;
+
+  let dataTable = null;
+  let selectedFile = null;
+  let selectedFileChanges = null;
+  let allData = [];
+  let isSearchActive = false;
+
+  // ========== INDEKS NIM (pencarian baris cepat) ==========
+  let indexNIM = new Map();
+
+  function bangunIndexNIM() {
+    indexNIM = new Map();
+    allData.forEach(r => indexNIM.set(String(r[2]).trim(), r));
+  }
+
+  function cariBaris(nim) {
+    return indexNIM.get(String(nim).trim());
+  }
+
+  const STATUS_DISETUJUI = ['Judul TA 1 Di Setujui', 'Judul TA 2 Di Setujui', 'Judul TA 3 Di Setujui'];
+
+  const DOSEN_LIST = [
+    'Prof. Dr. Bambang Waluyo, S.H., M.H.',
+    'Prof. Dr. Wicipto Setiadi, S.H., M.H.',
+    'Prof. Dr. Taufiqurrohman Syahuri, S.H., M.H.',
+    'Dr. Suherman, S.H., LL.M.',
+    'Dwi Desi Yayi Tarina, S.H., M.H.',
+    'Drs. Subakdi, M.M.',
+    'Dr. Heru Sugiyono, S.H., M.H.',
+    'Dr. Iwan Erar Joesoef, S.H., Sp.N., M.Kn.',
+    'Dr. Atik Winanti, S.H., M.H.',
+    'Dr. Diani Sadia Wati, S.H., LL.M.',
+    'Kayus Kayowuan L, S.H., M.H.',
+    'Dwi Aryanti Ramadhani, S.H., M.H.',
+    'Ir. Yuliana Yuli, M.M., M.H.',
+    'Dr. Beniharmoni Harefa, S.H., LL.M.',
+    'Dr. Slamet Tri Wahyudi, S.H., M.H.',
+    'Dr. Aurora Jillena Meliala, S.H., M.H.',
+    'Sylvana Murni Deborah Hutabarat, S.H., M.H.',
+    'Dr. Andriyanto Adhi Nugroho, S.H., M.H.',
+    'Sulastri, S.H., M.H.',
+    'Surahmad, S.H., M.H.',
+    'Mulyadi, S.H., M.H.',
+    'Dr. Muhammad Helmi Fahrozi, S.H.I., S.H., M.H.',
+    'Dr. Wardani Rizkianti, S.H., M.Kn.',
+    'Satino, S.Sos., S.H., M.H.',
+    'Suprima, S.Pd.I., M.Pd.I., M.H.',
+    'Taupiqqurrahman, S.H., M.Kn.',
+    'Dinda Dinanti, S.H., M.H.',
+    'Dr. Muthia Sakti, S.H., M.H.',
+    'Citraresmi Widoretno P, S.H., M.H.',
+    'Ali Imran Nasution, S.H., M.H.',
+    'Aji Lukman Ibrahim, S.H., M.H.',
+    'Rianda Dirkareshza, S.H., M.H.',
+    'Rosalia Dika Agustanti, S.H., M.H.',
+    'Davilla Prawidya Azaria, S.H., M.H.',
+    'Dr. Handar Subhandi Bakhtiar, S.H., M.H., M.Tr.Adm.Kes., DipFS.',
+    'Abdul Kholiq, S.H., M.H.',
+    'M. Rizki Yudha Prawira, S.H., M.H.',
+    'Ridha Wahyuni, S.H., M.Kn.',
+    'Dr. Irsyaf Marsal, S.H., M.H.',
+    'Wendy Budiati Rakhmi, S.H., M.H., LL.M.',
+    'Dita Rosalia Arini, S.H., M.H.',
+    'Dwi Najah Tsirwiyati, S.H., M.H.',
+    'Prameswara Winriadirahman, S.H., M.H.',
+    'Elkristi Ferdinan Manuel, S.H., M.H.',
+    'Faqih Zuhdi Rahman, S.H., M.H.',
+    'Ahmad Iqbal, S.H., M.H.',
+    'Ema Nurkhaerani, S.H., M.H.'
+  ];
+
+  // ========== STATUS MODAL ==========
+  function openStatusModal(rowData) {
+    const status = String(rowData[14]).trim();
+    const keterangan = String(rowData[15] || '-');
+    const isEmpty = !keterangan || keterangan === '-' || keterangan.trim() === '';
+    
+    let contentHTML = '';
+    let iconClass = '';
+    let modalTitle = '';
+    let headerColor = '';
+    
+    if (status === 'Catatan Verifikator') {
+      iconClass = 'bi-chat-square-text-fill';
+      modalTitle = 'Catatan dari Verifikator';
+      headerColor = 'linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%)';
+      contentHTML = `<div class="status-detail-content verifikator"><div class="status-detail-header verifikator"><i class="bi bi-info-circle-fill"></i><h6>Informasi dari Tim Verifikator</h6></div>`;
+      if (!isEmpty) {
+        contentHTML += `<div class="status-keterangan-content verifikator">${keterangan.replace(/\n/g, '<br>')}</div>`;
+      } else {
+        contentHTML += `<div class="status-keterangan-content verifikator"><em style="color: #6c757d;">Belum ada catatan dari verifikator</em></div>`;
+      }
+      contentHTML += '</div>';
+    } else if (status === 'Di Tolak') {
+      iconClass = 'bi-x-circle-fill';
+      modalTitle = 'Status: Ditolak';
+      headerColor = 'linear-gradient(135deg, #dc3545 0%, #bb2d3b 100%)';
+      contentHTML = `<div class="status-detail-content danger"><div class="status-ditolak-message"><p><i class="bi bi-exclamation-triangle-fill"></i>Semua usulan judul maupun dosen pembimbing ditolak</p></div>`;
+    } else if (status === 'Di Setujui dengan Perbaikan') {
+      iconClass = 'bi-exclamation-circle-fill';
+      modalTitle = 'Status: Disetujui dengan Perbaikan';
+      headerColor = 'linear-gradient(135deg, #fd7e14 0%, #e8590c 100%)';
+      contentHTML = `<div class="status-detail-content warning"><div class="status-detail-header warning"><i class="bi bi-check-circle-fill"></i><h6>Disetujui dengan Catatan Perbaikan</h6></div><p style="margin-bottom: 1rem; color: #495057;">Pengajuan Anda telah disetujui dengan beberapa catatan perbaikan yang perlu dilakukan.</p>`;
+    } else if (STATUS_DISETUJUI.includes(status)) {
+      iconClass = 'bi-check-circle-fill';
+      modalTitle = 'Status: Disetujui';
+      headerColor = 'linear-gradient(135deg, #198754 0%, #146c43 100%)';
+      
+      let judulTANum = 0, judulText = '', rumusan1 = '', rumusan2 = '';
+      if (status === 'Judul TA 1 Di Setujui') { judulTANum = 1; judulText = rowData[5]; rumusan1 = rowData[6]; rumusan2 = rowData[7]; }
+      else if (status === 'Judul TA 2 Di Setujui') { judulTANum = 2; judulText = rowData[8]; rumusan1 = rowData[9]; rumusan2 = rowData[10]; }
+      else { judulTANum = 3; judulText = rowData[11]; rumusan1 = rowData[12]; rumusan2 = rowData[13]; }
+      
+      contentHTML = `<div class="status-detail-content success"><div class="status-detail-header success"><i class="bi bi-check-circle-fill"></i><h6>Judul Tugas Akhir ${judulTANum} yang Disetujui</h6></div>
+        <div class="mb-3"><strong style="color: #495057; display: block; margin-bottom: 0.5rem;"><i class="bi bi-file-text me-2" style="color: #0d6efd;"></i>Judul:</strong>
+        <div class="status-judul-text">${judulText || '-'}</div></div>
+        <div class="status-rumusan-item"><div class="status-rumusan-label"><i class="bi bi-1-circle-fill"></i> Rumusan Masalah 1:</div><div class="status-rumusan-text">${rumusan1 || '-'}</div></div>
+        <div class="status-rumusan-item"><div class="status-rumusan-label"><i class="bi bi-2-circle-fill"></i> Rumusan Masalah 2:</div><div class="status-rumusan-text">${rumusan2 || '-'}</div></div>`;
+    }
+    
+    if (status !== 'Catatan Verifikator' && !isEmpty) {
+      const kelas = status === 'Di Tolak' ? 'danger' : status === 'Di Setujui dengan Perbaikan' ? 'warning' : 'success';
+      contentHTML += `<div class="status-keterangan-section">
+        <div class="status-keterangan-header ${kelas}">
+          <i class="bi bi-chat-left-text-fill"></i> Catatan dari Verifikator:
+        </div>
+        <div class="status-keterangan-content ${kelas}">
+          <b style="color: red;">${keterangan}</b>
+        </div></div>`;
+    }
+    contentHTML += '</div>';
+    
+    document.getElementById('statusModalTitle').innerHTML = `<i class="bi ${iconClass} me-2"></i>${modalTitle}`;
+    document.getElementById('statusModalHeader').style.background = headerColor;
+    document.getElementById('statusDetailContent').innerHTML = contentHTML;
+    document.getElementById('modalStatusOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeStatusModal() {
+    document.getElementById('modalStatusOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ========== SEARCH NIM / NAMA ==========
+  function saringData(term) {
+    return allData.filter(row => {
+      const nim = String(row[2]).toLowerCase();
+      const nama = String(row[1]).toLowerCase();
+      return nim.includes(term) || nama.includes(term);
+    });
+  }
+
+  function performSearch() {
+    const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+    if (!searchTerm) {
+      Swal.fire({ icon: 'warning', title: 'Input Kosong', text: 'Silakan masukkan NIM atau Nama untuk pencarian', confirmButtonColor: '#ffc107' });
+      return;
+    }
+    const filteredData = saringData(searchTerm);
+    if (filteredData.length === 0) {
+      Swal.fire({ icon: 'info', title: 'Tidak Ditemukan', text: 'Data dengan NIM atau Nama tersebut tidak ditemukan', confirmButtonColor: '#0d6efd' });
+      return;
+    }
+    isSearchActive = true;
+    document.getElementById('btnClearSearch').style.display = 'inline-block';
+    displayData(filteredData, searchTerm);
+  }
+
+  function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    isSearchActive = false;
+    document.getElementById('btnClearSearch').style.display = 'none';
+    displayData(allData);
+  }
+
+  function highlightText(text, searchTerm) {
+    if (!searchTerm || !isSearchActive) return text;
+    const aman = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return String(text).replace(new RegExp(`(${aman})`, 'gi'), '<span class="highlight-search">$1</span>');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') performSearch();
+    });
+  });
+
+  // ========== DETAIL JUDUL ==========
+  function openDetailJudulModal(rowData) {
+    document.getElementById('detailNIM').textContent = rowData[2];
+    document.getElementById('detailNama').textContent = rowData[1];
+    document.getElementById('detailKonsentrasi').textContent = rowData[3];
+    document.getElementById('detailDosen').textContent = rowData[4];
+    
+    let contentHTML = '';
+    [[5, 6, 7, 1], [8, 9, 10, 2], [11, 12, 13, 3]].forEach(([j, r1, r2, n]) => {
+      if (!rowData[j] || rowData[j] === '-') return;
+      contentHTML += `<div class="judul-item"><div class="judul-title"><i class="bi bi-${n}-circle-fill me-1"></i>Usulan Judul Tugas Akhir ${n}:</div>`;
+      contentHTML += '<div style="margin-bottom: 0.5rem; line-height: 1.6;">' + rowData[j] + '</div>';
+      if (rowData[r1] && rowData[r1] !== '-') contentHTML += '<div class="rumusan-item"><strong>• Rumusan Masalah 1:</strong> ' + rowData[r1] + '</div>';
+      if (rowData[r2] && rowData[r2] !== '-') contentHTML += '<div class="rumusan-item"><strong>• Rumusan Masalah 2:</strong> ' + rowData[r2] + '</div>';
+      contentHTML += '</div>';
+    });
+    if (!contentHTML) contentHTML = '<p class="text-muted text-center">Tidak ada data judul dan rumusan masalah</p>';
+    
+    document.getElementById('detailJudulContent').innerHTML = contentHTML;
+    document.getElementById('modalDetailJudulOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDetailJudulModal() {
+    document.getElementById('modalDetailJudulOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ========== REVISI ==========
+  function openRevisiModal(nim) {
+    document.getElementById('revisiNIM').value = nim;
+    document.getElementById('jenisRevisi').value = '';
+    ['judulBaru', 'rumusanBaru', 'rumusanBaru1', 'rumusanBaru2',
+     'judulBaruLengkap', 'rumusanBaruLengkap1', 'rumusanBaruLengkap2'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    ['inputJudulContainer', 'inputRumusanContainer', 'inputRumusanGandaContainer', 'inputJudulDanRumusanContainer'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById('modalRevisiOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeRevisiModal() {
+    document.getElementById('modalRevisiOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ========== UPLOAD BIASA ==========
+  function _showUploadModal(nim) {
+    document.getElementById('uploadNIM').value = nim;
+    selectedFile = null;
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('uploadProgress').style.display = 'none';
+    document.getElementById('uploadAlert').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('btnUpload').disabled = true;
+    
+    const row = cariBaris(nim);
+    if (row) {
+      const revisiValue = String(row[17]).trim().toLowerCase();
+      const hasFile = row[19] && row[19] !== '-';
+      const isKesediaan = revisiValue.match(/^kesediaan\s*(\d*)$/);
+      
+      if (isKesediaan && hasFile) {
+        const kesediaanNum = isKesediaan[1] || '1';
+        document.getElementById('uploadAlertText').innerHTML = `<strong>Upload Kesediaan ${kesediaanNum}:</strong> File sebelumnya akan otomatis dihapus saat Anda upload file baru.`;
+        document.getElementById('uploadAlert').className = 'alert alert-warning';
+        document.getElementById('uploadAlert').style.display = 'block';
+      } else if (revisiValue === 'upload ulang' && hasFile) {
+        document.getElementById('uploadAlertText').innerHTML = '<strong>Upload Ulang:</strong> File sebelumnya akan otomatis dihapus saat Anda upload file baru.';
+        document.getElementById('uploadAlert').className = 'alert alert-warning';
+        document.getElementById('uploadAlert').style.display = 'block';
+      }
+    }
+    document.getElementById('modalUploadOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeUploadModal() {
+    document.getElementById('modalUploadOverlay').classList.remove('active');
+    document.getElementById('uploadAlert').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    document.body.style.overflow = '';
+  }
+
+  // ========== UPLOAD DENGAN PERUBAHAN JUDUL ==========
+  function _showUploadWithChangesModal(nim, judulNum) {
+    const row = cariBaris(nim);
+
+    document.getElementById('uploadWithChangesNIM').value = nim;
+    document.getElementById('uploadWithChangesJudulNum').value = judulNum;
+    selectedFileChanges = null;
+
+    document.getElementById('btnUploadWithChanges').disabled = false;
+    document.getElementById('changesJudul').value = '';
+    document.getElementById('changesRumusan1').value = '';
+    document.getElementById('changesRumusan2').value = '';
+
+    document.getElementById('fileInfoChanges').style.display = 'none';
+    document.getElementById('uploadProgressChanges').style.display = 'none';
+    document.getElementById('uploadWithChangesAlert').style.display = 'none';
+    document.getElementById('fileInputChanges').value = '';
+
+    if (row) {
+      const status = String(row[14]).trim();
+      document.getElementById('uploadWithChangesStatusDisetujui').value = status;
+
+      let judulDisetujui = '', rumusan1 = '', rumusan2 = '';
+      if (status === 'Judul TA 1 Di Setujui') { judulDisetujui = row[5]; rumusan1 = row[6]; rumusan2 = row[7]; }
+      else if (status === 'Judul TA 2 Di Setujui') { judulDisetujui = row[8]; rumusan1 = row[9]; rumusan2 = row[10]; }
+      else if (status === 'Judul TA 3 Di Setujui') { judulDisetujui = row[11]; rumusan1 = row[12]; rumusan2 = row[13]; }
+
+      const hasFile = row[19] && row[19] !== '-' && String(row[19]).trim() !== '';
+      if (hasFile) {
+        document.getElementById('uploadWithChangesAlert').className = 'alert alert-warning';
+        document.getElementById('uploadWithChangesAlert').innerHTML = '<i class="bi bi-info-circle-fill me-2"></i><strong>Perhatian:</strong> File kesediaan sebelumnya akan otomatis diganti jika Anda mengupload file baru.';
+        document.getElementById('uploadWithChangesAlert').style.display = 'block';
+      }
+
+      let infoHtml = `<div style="margin-bottom: 0.3rem;"><strong>Judul:</strong> ${judulDisetujui || '-'}</div>`;
+      if (rumusan1) infoHtml += `<div style="margin-bottom: 0.3rem;"><strong>RM 1:</strong> ${rumusan1}</div>`;
+      if (rumusan2) infoHtml += `<div><strong>RM 2:</strong> ${rumusan2}</div>`;
+      document.getElementById('approvedJudulText').innerHTML = infoHtml;
+    }
+
+    document.getElementById('modalUploadWithChangesOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeUploadWithChangesModal() {
+    document.getElementById('modalUploadWithChangesOverlay').classList.remove('active');
+    document.getElementById('fileInputChanges').value = '';
+    document.getElementById('fileInfoChanges').style.display = 'none';
+    document.getElementById('uploadWithChangesAlert').style.display = 'none';
+    selectedFileChanges = null;
+    document.body.style.overflow = '';
+  }
+
+  // ========== openUploadModal: konfirmasi ada perubahan judul atau tidak ==========
+  function openUploadModal(nim, judulNum) {
+    Swal.fire({
+      title: '<i class="bi bi-question-circle-fill" style="color: #e67e00; font-size: 2rem;"></i>',
+      html: `
+        <div style="margin-top: 0.5rem;">
+          <p style="font-size: 1.05rem; font-weight: 600; color: #212529; margin-bottom: 0.5rem;">
+            Apakah ada perubahan judul setelah mengajukan kesediaan ke dosen pembimbing?
+          </p>
+          <p style="font-size: 0.875rem; color: #6c757d; margin: 0;">
+            Pilih <strong>"Ya, Ada Perubahan"</strong> jika judul tugas akhir atau rumusan masalah berubah setelah berdiskusi dengan dosen.<br>
+            Pilih <strong>"Tidak, Langsung Upload"</strong> jika judul tetap sama seperti yang disetujui.
+          </p>
+        </div>
+      `,
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: '<i class="bi bi-pencil-fill me-1"></i> Ya, Ada Perubahan',
+      denyButtonText: '<i class="bi bi-cloud-upload me-1"></i> Tidak, Langsung Upload',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#e67e00',
+      denyButtonColor: '#483d8b',
+      cancelButtonColor: '#6c757d',
+      reverseButtons: false,
+      width: '540px',
+      padding: '2rem',
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        _showUploadWithChangesModal(nim, judulNum);
+      } else if (result.isDenied) {
+        _showUploadModal(nim);
+      }
+    });
+  }
+
+  // ========== SUBMIT UPLOAD DENGAN PERUBAHAN (dengan validasi duplikasi judul) ==========
+  async function submitUploadWithChanges() {
+    const nim = document.getElementById('uploadWithChangesNIM').value;
+    const statusDisetujui = document.getElementById('uploadWithChangesStatusDisetujui').value;
+    const judul = document.getElementById('changesJudul').value.trim();
+    const rumusan1 = document.getElementById('changesRumusan1').value.trim();
+    const rumusan2 = document.getElementById('changesRumusan2').value.trim();
+
+    if (!judul) {
+      Swal.fire({ icon: 'warning', title: 'Judul Belum Diisi', text: 'Mohon isi judul tugas akhir final!', confirmButtonColor: '#e67e00' });
+      return;
+    }
+    if (!rumusan1) {
+      Swal.fire({ icon: 'warning', title: 'Rumusan Masalah 1 Belum Diisi', text: 'Mohon isi rumusan masalah 1!', confirmButtonColor: '#e67e00' });
+      return;
+    }
+    if (!rumusan2) {
+      Swal.fire({ icon: 'warning', title: 'Rumusan Masalah 2 Belum Diisi', text: 'Mohon isi rumusan masalah 2!', confirmButtonColor: '#e67e00' });
+      return;
+    }
+    if (!selectedFileChanges) {
+      Swal.fire({ icon: 'warning', title: 'File Belum Dipilih', text: 'Mohon upload file kesediaan pembimbing (PDF, maks. 1 MB)!', confirmButtonColor: '#e67e00' });
+      return;
+    }
+
+    // ===== VALIDASI DUPLIKASI JUDUL =====
+    const rowSendiri = cariBaris(nim);
+    let judulLamaSendiri = '';
+    if (rowSendiri) {
+      if (statusDisetujui === 'Judul TA 1 Di Setujui') judulLamaSendiri = String(rowSendiri[5] || '').trim();
+      else if (statusDisetujui === 'Judul TA 2 Di Setujui') judulLamaSendiri = String(rowSendiri[8] || '').trim();
+      else if (statusDisetujui === 'Judul TA 3 Di Setujui') judulLamaSendiri = String(rowSendiri[11] || '').trim();
+    }
+
+    const normalize = (str) =>
+      String(str || '').trim().toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/[\r\n\t]/g, '')
+        .replace(/[^\w\s]/g, '');
+
+    const isSameAsOwnJudul = normalize(judul) === normalize(judulLamaSendiri);
+
+    if (!isSameAsOwnJudul) {
+      Swal.fire({
+        title: 'Memeriksa Duplikasi Judul...',
+        html: 'Mohon tunggu, sistem sedang memeriksa database judul...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const checkResult = await validateJudulNotDuplicate([judul], nim);
+
+      if (!checkResult.valid) {
+        await showDuplicateAlert(checkResult.duplicates);
+        return;
+      }
+
+      Swal.close();
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      if (checkResult.warning) {
+        const cont = await Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: checkResult.warning + ' Lanjutkan penyimpanan?',
+          showCancelButton: true,
+          confirmButtonText: 'Lanjutkan',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#e67e00'
+        });
+        if (!cont.isConfirmed) return;
+      }
+    }
+    // ===== END VALIDASI =====
+
+    let judulCol = null;
+    if (statusDisetujui === 'Judul TA 1 Di Setujui') judulCol = 1;
+    else if (statusDisetujui === 'Judul TA 2 Di Setujui') judulCol = 2;
+    else if (statusDisetujui === 'Judul TA 3 Di Setujui') judulCol = 3;
+
+    const btnUpload = document.getElementById('btnUploadWithChanges');
+    const btnBatal = document.getElementById('btnBatalUploadChanges');
+    const btnClose = document.querySelector('#modalUploadWithChangesOverlay .custom-modal-close');
+
+    btnUpload.disabled = true;
+    btnUpload.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+    if (btnBatal) { btnBatal.disabled = true; btnBatal.style.opacity = '0.5'; }
+    if (btnClose) { btnClose.disabled = true; btnClose.style.opacity = '0.5'; btnClose.style.pointerEvents = 'none'; }
+
+    Swal.fire({
+      title: 'Menyimpan Perubahan...',
+      html: 'Mohon tunggu, jangan refresh atau close halaman.',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    const resetButtons = () => {
+      btnUpload.disabled = false;
+      btnUpload.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Simpan Perubahan';
+      if (btnBatal) { btnBatal.disabled = false; btnBatal.style.opacity = '1'; }
+      if (btnClose) { btnClose.disabled = false; btnClose.style.opacity = '1'; btnClose.style.pointerEvents = 'auto'; }
+    };
+
+    document.getElementById('uploadProgressChanges').style.display = 'block';
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64Data = e.target.result.split(',')[1];
+      const requestData = {
+        action: 'uploadFileWithChanges',
+        nim, statusDisetujui, judulCol,
+        judulBaru: judul, rumusan1Baru: rumusan1, rumusan2Baru: rumusan2,
+        fileName: selectedFileChanges.name, fileData: base64Data
+      };
+
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(requestData) })
+        .then(r => r.text())
+        .then(textResponse => {
+          document.getElementById('uploadProgressChanges').style.display = 'none';
+          let result;
+          try { result = JSON.parse(textResponse); } catch { result = { status: 'success' }; }
+
+          if (result.status === 'success' || textResponse.includes('success')) {
+            resetButtons();
+            closeUploadWithChangesModal();
+            Swal.fire({
+              icon: 'success',
+              title: 'Berhasil Disimpan!',
+              html: '<p>Perubahan judul dan file kesediaan berhasil disimpan.</p>',
+              timer: 3500, timerProgressBar: true, showConfirmButton: false, willClose: loadData
+            });
+          } else {
+            resetButtons();
+            Swal.fire({ icon: 'error', title: 'Gagal', text: result.message || 'Terjadi kesalahan', confirmButtonColor: '#dc3545' });
+          }
+        })
+        .catch(error => {
+          document.getElementById('uploadProgressChanges').style.display = 'none';
+          resetButtons();
+          Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', html: `<p><strong>Error:</strong> ${error.message}</p>`, confirmButtonColor: '#ffc107' });
+        });
+    };
+    reader.readAsDataURL(selectedFileChanges);
+  }
+
+  // ========== AJUKAN ULANG ==========
+  function openAjukanUlangModal(nim) {
+    document.getElementById('ajukanUlangNIM').value = nim;
+    const dosenSelect = document.getElementById('ajukanUlangDosen');
+    dosenSelect.innerHTML = '<option value="">-- Pilih Dosen Pembimbing --</option>';
+    DOSEN_LIST.forEach(dosen => {
+      const option = document.createElement('option');
+      option.value = dosen;
+      option.textContent = dosen;
+      dosenSelect.appendChild(option);
+    });
+    ['ajukanUlangDosen','ajukanUlangJudul1','ajukanUlangRumusan1_1','ajukanUlangRumusan1_2',
+     'ajukanUlangJudul2','ajukanUlangRumusan2_1','ajukanUlangRumusan2_2',
+     'ajukanUlangJudul3','ajukanUlangRumusan3_1','ajukanUlangRumusan3_2'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('modalAjukanUlangOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAjukanUlangModal() {
+    document.getElementById('modalAjukanUlangOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // ========== CLICK OUTSIDE ==========
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('custom-modal-overlay')) {
+      if (e.target.id === 'modalRevisiOverlay') closeRevisiModal();
+      else if (e.target.id === 'modalUploadOverlay') closeUploadModal();
+      else if (e.target.id === 'modalUploadWithChangesOverlay') closeUploadWithChangesModal();
+      else if (e.target.id === 'modalDetailJudulOverlay') closeDetailJudulModal();
+      else if (e.target.id === 'modalStatusOverlay') closeStatusModal();
+      else if (e.target.id === 'modalAjukanUlangOverlay') closeAjukanUlangModal();
+    }
+  });
+
+  // ========== TOMBOL LIHAT STATUS & DETAIL (event delegation) ==========
+  // Satu pendengar untuk seluruh tabel. Baris yang dibuat DataTables
+  // saat pindah halaman ikut tertangani.
+  document.getElementById('tablePendaftaran').addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-lihat]');
+    if (!btn) return;
+    const row = cariBaris(btn.dataset.nim);
+    if (!row) {
+      Swal.fire({ icon: 'warning', title: 'Data Tidak Ditemukan', text: 'Silakan klik Refresh lalu coba lagi.', confirmButtonColor: '#0d6efd' });
+      return;
+    }
+    if (btn.dataset.lihat === 'status') openStatusModal(row);
+    else openDetailJudulModal(row);
+  });
+
+  // ========== JENIS REVISI CHANGE ==========
+  document.getElementById('jenisRevisi').addEventListener('change', function() {
+    document.getElementById('inputJudulContainer').style.display = 'none';
+    document.getElementById('inputRumusanContainer').style.display = 'none';
+    document.getElementById('inputRumusanGandaContainer').style.display = 'none';
+    document.getElementById('inputJudulDanRumusanContainer').style.display = 'none';
+    
+    if (this.value.includes('beserta Rumusan Masalah 1 & 2')) {
+      document.getElementById('inputJudulDanRumusanContainer').style.display = 'block';
+    } else if (this.value.includes('Revisi Judul TA')) {
+      document.getElementById('inputJudulContainer').style.display = 'block';
+    } else if (this.value.includes('1 & 2')) {
+      document.getElementById('inputRumusanGandaContainer').style.display = 'block';
+    } else if (this.value.includes('Revisi Rumusan Masalah')) {
+      document.getElementById('inputRumusanContainer').style.display = 'block';
+    }
+  });
+
+  // ========== LOAD DATA (endpoint ringan + timeout) ==========
+  function loadData() {
+    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+    // Tabel lama tetap terlihat saat Refresh, supaya data tidak hilang jika server gagal
+    if (!dataTable) document.getElementById('tableContainer').style.display = 'none';
+
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), LOAD_TIMEOUT_MS);
+
+    fetch(SCRIPT_URL + '?action=getDashboard', { signal: ctrl.signal })
+      .then(r => r.text())
+      .then(teks => {
+        let result;
+        try { result = JSON.parse(teks); }
+        catch (e) { throw new Error('Server tidak mengirim data yang valid. Kemungkinan server sedang sibuk. Coba lagi beberapa saat.'); }
+
+        if (result.status !== 'success') throw new Error(result.message || 'Server menolak permintaan.');
+
+        allData = result.data || [];
+        bangunIndexNIM();
+        updateStats(allData);
+
+        if (!allData.length) {
+          document.getElementById('tableContainer').style.display = 'none';
+          document.getElementById('emptyState').style.display = 'block';
+          return;
+        }
+
+        document.getElementById('tableContainer').style.display = 'block';
+
+        // Jika pencarian NIM/Nama sedang aktif, saring ulang dengan data terbaru
+        const term = isSearchActive ? document.getElementById('searchInput').value.trim().toLowerCase() : '';
+        try {
+          displayData(term ? saringData(term) : allData, term);
+        } catch (err) {
+          console.error(err);
+          throw new Error('Data diterima, tetapi gagal ditampilkan: ' + err.message);
+        }
+      })
+      .catch(err => {
+        const pesan = err.name === 'AbortError'
+          ? 'Server tidak merespons dalam 45 detik. Silakan klik Refresh beberapa saat lagi.'
+          : err.message;
+        Swal.fire({ icon: 'error', title: 'Gagal Memuat Data', text: pesan, confirmButtonColor: '#dc3545' });
+      })
+      .finally(() => {
+        clearTimeout(timer);
+        document.getElementById('loadingIndicator').style.display = 'none';
+      });
+  }
+
+  // ========== SUSUN SATU BARIS TABEL (7 kolom HTML) ==========
+  function buatBarisTabel(row, searchTerm) {
+    const nimAsli = String(row[2]).trim();
+    const status = String(row[14]).trim();
+    const isDisetujui = STATUS_DISETUJUI.includes(status);
+    const judulNum = status === 'Judul TA 1 Di Setujui' ? 1 : status === 'Judul TA 2 Di Setujui' ? 2 : 3;
+
+    // Kolom status: tombol hanya membawa NIM
+    let statusButton = '';
+    if (isDisetujui) {
+      statusButton = `<button class="btn-lihat-status" data-lihat="status" data-nim="${nimAsli}" title="Lihat Detail Status"><i class="bi bi-eye-fill"></i> Lihat Status</button>`;
+    } else if (status === 'Di Tolak') {
+      statusButton = `<button class="btn-lihat-status btn-lihat-status-danger" data-lihat="status" data-nim="${nimAsli}" title="Lihat Detail Status"><i class="bi bi-eye-fill"></i> Lihat Status</button>`;
+    } else if (status === 'Di Setujui dengan Perbaikan') {
+      statusButton = `<button class="btn-lihat-status btn-lihat-status-warning" data-lihat="status" data-nim="${nimAsli}" title="Lihat Detail Status"><i class="bi bi-eye-fill"></i> Lihat Status</button>`;
+    } else if (status === 'Catatan Verifikator') {
+      statusButton = `<button class="btn-catatan-verifikator" data-lihat="status" data-nim="${nimAsli}" title="Lihat Catatan Verifikator"><i class="bi bi-chat-square-text-fill"></i> Lihat Catatan</button>`;
+    } else if (!status || status === '-') {
+      statusButton = '<span class="badge-status badge-pending">Menunggu Verifikasi</span>';
+    } else {
+      statusButton = '<span class="badge-status badge-pending">' + status + '</span>';
+    }
+
+    // Kolom dosen yang disetujui
+    const dosenDisetujui = String(row[16] || '').trim();
+    const isApproved = String(row[22] || '').includes('APPROVED');
+    let dosenCell = '<span class="text-muted">-</span>';
+    if (status !== 'Di Tolak' && dosenDisetujui && dosenDisetujui !== '-') {
+      dosenCell = isApproved
+        ? '<div class="dosen-approved-cell"><i class="bi bi-person-check-fill me-1"></i>' + dosenDisetujui + '</div>'
+        : '<div style="text-align: center;"><span class="text-muted small"><i class="bi bi-lock-fill me-1"></i>Menunggu Approval</span></div>';
+    }
+
+    const btnDetailJudul = `<button class="btn-detail-judul" data-lihat="judul" data-nim="${nimAsli}"><i class="bi bi-eye-fill"></i>Lihat Detail</button>`;
+
+    // Kolom aksi
+    let actionButtons = '';
+    const revisiValue = String(row[17]).trim().toLowerCase();
+
+    if (revisiValue === 'ulang') {
+      actionButtons += `<button class="btn-action btn-ajukan-ulang" onclick="DashboardApp.openAjukanUlangModal('${nimAsli}')"><i class="bi bi-arrow-repeat me-1"></i>Ajukan Ulang</button>`;
+    } else if (revisiValue.startsWith('revisi ')) {
+      const revisiNum = String(row[17]).trim().replace(/revisi /i, '');
+      actionButtons += `<button class="btn-action btn-revisi" onclick="DashboardApp.openRevisiModal('${nimAsli}')"><i class="bi bi-pencil-square me-1"></i>Revisi Disini ${revisiNum}</button>`;
+    } else if (revisiValue.startsWith('sudah revisi')) {
+      const revisiNum = String(row[17]).trim().replace(/sudah revisi /i, '');
+      actionButtons += `<button class="btn-action btn-completed" disabled><i class="bi bi-check-circle me-1"></i>Sudah Revisi Ke ${revisiNum}</button>`;
+    }
+
+    if (isDisetujui) {
+      const hasFile = row[19] && row[19] !== '-' && String(row[19]).trim() !== '';
+      const isKesediaan = revisiValue.match(/^kesediaan\s*(\d*)$/);
+      const sedangAtauSudahRevisi = revisiValue.startsWith('revisi ') || revisiValue.startsWith('sudah revisi');
+
+      if (sedangAtauSudahRevisi || !isApproved) {
+        // Tombol upload tidak ditampilkan
+      } else if (isKesediaan) {
+        const kesediaanNum = isKesediaan[1] || '';
+        actionButtons += `<button class="btn-action btn-upload" onclick="DashboardApp.openUploadModal('${nimAsli}', ${judulNum})"><i class="bi bi-cloud-upload me-1"></i>Upload Kesediaan${kesediaanNum ? ' ' + kesediaanNum : ''}</button>`;
+      } else if (revisiValue === 'upload ulang') {
+        actionButtons += `<button class="btn-action btn-upload" onclick="DashboardApp.openUploadModal('${nimAsli}', ${judulNum})"><i class="bi bi-cloud-upload me-1"></i>Upload Ulang Kesediaan</button>`;
+      } else if (!hasFile && (revisiValue === '-' || revisiValue === '')) {
+        actionButtons += `<button class="btn-action btn-upload" onclick="DashboardApp.openUploadModal('${nimAsli}', ${judulNum})"><i class="bi bi-cloud-upload me-1"></i>Upload Kesediaan</button>`;
+      } else if (hasFile) {
+        const isSudahKesediaan = revisiValue.match(/^sudah kesediaan\s*(\d*)$/);
+        let label = 'Sudah Upload Kesediaan';
+        if (isSudahKesediaan) label = 'Sudah Upload Kesediaan ' + (isSudahKesediaan[1] || '1');
+        else if (revisiValue === 'sudah upload ulang') label = 'Sudah Upload Ulang';
+        actionButtons += `<button class="btn-action btn-completed" disabled><i class="bi bi-check-circle me-1"></i>${label}</button>`;
+      }
+    }
+
+    if (!actionButtons) actionButtons = '<span class="text-muted small">-</span>';
+
+    const nim = searchTerm ? highlightText(nimAsli, searchTerm) : nimAsli;
+    const nama = searchTerm ? highlightText(String(row[1]), searchTerm) : row[1];
+
+    return [
+      `<strong>${nim}</strong><br><small>${nama}</small>`,
+      row[3],
+      row[4],
+      btnDetailJudul,
+      statusButton,
+      dosenCell,
+      actionButtons
+    ];
+  }
+
+  // ========== DISPLAY DATA (render bertahap per halaman) ==========
+  function displayData(data, searchTerm = '') {
+    const barisTabel = data.map(row => buatBarisTabel(row, searchTerm));
+
+    // Tabel sudah ada: cukup ganti isinya
+    if (dataTable) {
+      dataTable.clear().rows.add(barisTabel).draw();
+      return;
+    }
+
+    dataTable = $('#tablePendaftaran').DataTable({
+      data: barisTabel,
+      deferRender: true,
+      autoWidth: false,
+      columnDefs: [{ targets: [3, 4, 5, 6], className: 'text-center' }],
+      language: {
+        search: "Cari:",
+        lengthMenu: "Tampilkan _MENU_ data per halaman",
+        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+        infoEmpty: "Tidak ada data",
+        infoFiltered: "(difilter dari _MAX_ total data)",
+        zeroRecords: "Tidak ada data yang cocok",
+        emptyTable: "Tidak ada data",
+        loadingRecords: "Memuat...",
+        processing: "Memproses...",
+        paginate: { first: "Pertama", last: "Terakhir", next: "Selanjutnya", previous: "Sebelumnya" }
+      },
+      order: [[0, 'asc']],
+      pageLength: 10,
+      searching: false
+    });
+  }
+
+  // ========== STATS ==========
+  function updateStats(data) {
+    document.getElementById('totalPendaftar').textContent = data.length;
+    const today = new Date();
+    document.getElementById('mingguIni').textContent = data.filter(row => isDateThisWeek(row[0], today)).length;
+    document.getElementById('bulanIni').textContent = data.filter(row => isDateThisMonth(row[0], today)).length;
+  }
+
+  function isDateThisWeek(dateString, referenceDate) {
+    try {
+      const parts = String(dateString).split(' ')[0].split('/');
+      const date = new Date(parts[2], parts[1] - 1, parts[0]);
+      const currentDay = referenceDate.getDay();
+      const diff = currentDay === 0 ? 6 : currentDay - 1;
+      const weekStart = new Date(referenceDate);
+      weekStart.setDate(referenceDate.getDate() - diff);
+      weekStart.setHours(0,0,0,0);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      weekEnd.setHours(23,59,59,999);
+      return date >= weekStart && date <= weekEnd;
+    } catch { return false; }
+  }
+
+  function isDateThisMonth(dateString, referenceDate) {
+    try {
+      const parts = String(dateString).split(' ')[0].split('/');
+      const date = new Date(parts[2], parts[1] - 1, parts[0]);
+      return date.getMonth() === referenceDate.getMonth() && date.getFullYear() === referenceDate.getFullYear();
+    } catch { return false; }
+  }
+
+  // ========== SUBMIT REVISI (dengan validasi duplikasi judul) ==========
+  async function submitRevisi() {
+    const nim = document.getElementById('revisiNIM').value;
+    const jenisRevisi = document.getElementById('jenisRevisi').value;
+
+    if (!jenisRevisi) {
+      Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Mohon pilih jenis revisi!', confirmButtonColor: '#ffc107' });
+      return;
+    }
+
+    const isGanda = jenisRevisi.includes('1 & 2');
+    const isJudulDanRumusan = jenisRevisi.includes('beserta Rumusan Masalah 1 & 2');
+    let requestData = { action: 'updateRevision', nim, jenisRevisi };
+
+    let judulBaru = '';
+    let nilai = '', nilai1 = '', nilai2 = '';
+
+    if (isJudulDanRumusan) {
+      nilai = document.getElementById('judulBaruLengkap').value.trim();
+      nilai1 = document.getElementById('rumusanBaruLengkap1').value.trim();
+      nilai2 = document.getElementById('rumusanBaruLengkap2').value.trim();
+      if (!nilai || !nilai1 || !nilai2) {
+        Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Mohon isi judul baru dan kedua rumusan masalah!', confirmButtonColor: '#ffc107' });
+        return;
+      }
+      judulBaru = nilai;
+      requestData.nilai = nilai; requestData.nilai1 = nilai1; requestData.nilai2 = nilai2;
+
+    } else if (jenisRevisi.includes('Revisi Judul TA')) {
+      nilai = document.getElementById('judulBaru').value.trim();
+      if (!nilai) {
+        Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Mohon isi judul baru!', confirmButtonColor: '#ffc107' });
+        return;
+      }
+      judulBaru = nilai;
+      requestData.nilai = nilai;
+
+    } else if (isGanda) {
+      nilai1 = document.getElementById('rumusanBaru1').value.trim();
+      nilai2 = document.getElementById('rumusanBaru2').value.trim();
+      if (!nilai1 || !nilai2) {
+        Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Mohon isi kedua rumusan masalah!', confirmButtonColor: '#ffc107' });
+        return;
+      }
+      requestData.nilai1 = nilai1; requestData.nilai2 = nilai2;
+
+    } else if (jenisRevisi.includes('Revisi Rumusan Masalah')) {
+      nilai = document.getElementById('rumusanBaru').value.trim();
+      if (!nilai) {
+        Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Mohon isi rumusan masalah baru!', confirmButtonColor: '#ffc107' });
+        return;
+      }
+      requestData.nilai = nilai;
+    }
+
+    if (judulBaru) {
+      Swal.fire({
+        title: 'Memeriksa Duplikasi Judul...',
+        html: 'Mohon tunggu, sistem sedang memeriksa database judul...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const checkResult = await validateJudulNotDuplicate([judulBaru], nim);
+
+      if (!checkResult.valid) {
+        await showDuplicateAlert(checkResult.duplicates);
+        return;
+      }
+
+      Swal.close();
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      if (checkResult.warning) {
+        const cont = await Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: checkResult.warning + ' Lanjutkan pengiriman?',
+          showCancelButton: true,
+          confirmButtonText: 'Lanjutkan',
+          cancelButtonText: 'Batal',
+          confirmButtonColor: '#ffc107'
+        });
+        if (!cont.isConfirmed) return;
+      }
+    }
+
+    const btnSubmit = document.getElementById('btnSubmitRevisi');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+    Swal.fire({
+      title: 'Menyimpan Revisi...',
+      html: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(requestData) })
+      .then(r => r.text())
+      .then(textResponse => {
+        let result;
+        try { result = JSON.parse(textResponse); } catch { result = { status: 'success' }; }
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Simpan Revisi';
+        if (result.status === 'success' || textResponse.includes('success')) {
+          closeRevisiModal();
+          Swal.fire({
+            icon: 'success',
+            title: 'Revisi Berhasil Disimpan!',
+            html: `<p>Revisi <strong>${jenisRevisi}</strong> telah berhasil disimpan.</p>`,
+            timer: 2500, timerProgressBar: true, showConfirmButton: false, willClose: loadData
+          });
+        } else {
+          Swal.fire({ icon: 'error', title: 'Revisi Gagal', text: result.message || 'Terjadi kesalahan', confirmButtonColor: '#dc3545' });
+        }
+      })
+      .catch(error => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-check-circle me-1"></i> Simpan Revisi';
+        Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', html: `<p><strong>Error:</strong> ${error.message}</p>`, confirmButtonColor: '#ffc107' });
+      });
+  }
+
+  // ========== FILE UPLOAD EVENTS (Modal Biasa) ==========
+  const fileUploadArea = document.getElementById('fileUploadArea');
+  const fileInput = document.getElementById('fileInput');
+
+  fileUploadArea.addEventListener('click', () => fileInput.click());
+  fileUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); fileUploadArea.classList.add('drag-over'); });
+  fileUploadArea.addEventListener('dragleave', () => fileUploadArea.classList.remove('drag-over'));
+  fileUploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    fileUploadArea.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFileSelect(e.target.files[0]); });
+
+  function handleFileSelect(file) {
+    document.getElementById('uploadAlert').style.display = 'none';
+    if (file.type !== 'application/pdf') {
+      document.getElementById('uploadAlertText').textContent = 'Format file salah! Hanya file PDF yang diperbolehkan.';
+      document.getElementById('uploadAlert').style.display = 'block';
+      document.getElementById('fileInput').value = '';
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      const fileSizeFormatted = formatFileSize(file.size);
+      document.getElementById('uploadAlertText').textContent = `Ukuran file terlalu besar! Maksimal 1 MB. File Anda: ${fileSizeFormatted}`;
+      document.getElementById('uploadAlert').style.display = 'block';
+      document.getElementById('fileInput').value = '';
+      return;
+    }
+    selectedFile = file;
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+    document.getElementById('fileInfo').style.display = 'block';
+    document.getElementById('btnUpload').disabled = false;
+  }
+
+  // ========== FILE UPLOAD EVENTS (Modal dengan Perubahan) ==========
+  const fileUploadAreaChanges = document.getElementById('fileUploadAreaChanges');
+  const fileInputChanges = document.getElementById('fileInputChanges');
+
+  fileUploadAreaChanges.addEventListener('click', () => fileInputChanges.click());
+  fileUploadAreaChanges.addEventListener('dragover', (e) => { e.preventDefault(); fileUploadAreaChanges.classList.add('drag-over'); });
+  fileUploadAreaChanges.addEventListener('dragleave', () => fileUploadAreaChanges.classList.remove('drag-over'));
+  fileUploadAreaChanges.addEventListener('drop', (e) => {
+    e.preventDefault();
+    fileUploadAreaChanges.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) handleFileSelectChanges(e.dataTransfer.files[0]);
+  });
+  fileInputChanges.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFileSelectChanges(e.target.files[0]); });
+
+  function handleFileSelectChanges(file) {
+    const alertEl = document.getElementById('uploadWithChangesAlert');
+    alertEl.style.display = 'none';
+    if (file.type !== 'application/pdf') {
+      alertEl.className = 'alert alert-danger';
+      alertEl.innerHTML = '<i class="bi bi-x-circle-fill me-2"></i>Format file salah! Hanya file PDF yang diperbolehkan.';
+      alertEl.style.display = 'block';
+      document.getElementById('fileInputChanges').value = '';
+      selectedFileChanges = null;
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      alertEl.className = 'alert alert-danger';
+      alertEl.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>Ukuran file terlalu besar! Maksimal 1 MB. File Anda: ${formatFileSize(file.size)}`;
+      alertEl.style.display = 'block';
+      document.getElementById('fileInputChanges').value = '';
+      selectedFileChanges = null;
+      return;
+    }
+    selectedFileChanges = file;
+    document.getElementById('fileNameChanges').textContent = file.name;
+    document.getElementById('fileSizeChanges').textContent = formatFileSize(file.size);
+    document.getElementById('fileInfoChanges').style.display = 'block';
+  }
+
+  // ========== VALIDASI DUPLIKASI JUDUL ==========
+  const JUDUL_CHECK_URL = SCRIPT_URL;
+
+  async function validateJudulNotDuplicate(judulList, currentNIM) {
+    // Judul milik NIM lain yang sudah disetujui
+    const approvedJudulOthers = [];
+    allData.forEach(row => {
+      const rowNIM = String(row[2]).trim();
+      if (rowNIM === String(currentNIM).trim()) return;
+
+      const status = String(row[14]).trim();
+      if (status === 'Judul TA 1 Di Setujui') approvedJudulOthers.push(String(row[5] || '').trim());
+      else if (status === 'Judul TA 2 Di Setujui') approvedJudulOthers.push(String(row[8] || '').trim());
+      else if (status === 'Judul TA 3 Di Setujui') approvedJudulOthers.push(String(row[11] || '').trim());
+    });
+
+    const normalize = (str) =>
+      String(str || '').trim().toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/[\r\n\t]/g, '')
+        .replace(/[^\w\s]/g, '');
+
+    const localDuplicates = [];
+    judulList.forEach((judul, idx) => {
+      if (!judul) return;
+      const judulNorm = normalize(judul);
+      approvedJudulOthers.forEach(approved => {
+        const approvedNorm = normalize(approved);
+        if (!approvedNorm) return;
+        if (judulNorm === approvedNorm) {
+          localDuplicates.push({
+            judulInput: judul,
+            judulExisting: approved,
+            similarity: '100.0',
+            source: 'Dashboard',
+            index: idx
+          });
+        }
+      });
+    });
+
+    if (localDuplicates.length > 0) {
+      return { valid: false, duplicates: localDuplicates };
+    }
+
+    // Cek ke Database Judul via Apps Script
+    try {
+      const payload = {
+        action: 'checkJudul',
+        judul1: judulList[0] || '',
+        judul2: judulList[1] || '',
+        judul3: judulList[2] || ''
+      };
+
+      const response = await fetch(JUDUL_CHECK_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      const text = await response.text();
+      const result = JSON.parse(text);
+
+      if (result.status === 'success' && result.duplicate && result.matches?.length > 0) {
+        const dbDuplicates = result.matches.map(m => ({
+          judulInput: m.inputJudul,
+          judulExisting: m.existingJudul,
+          similarity: m.similarity,
+          source: 'Database Judul',
+          index: 0
+        }));
+        return { valid: false, duplicates: dbDuplicates };
+      }
+
+      return { valid: true };
+
+    } catch (err) {
+      console.warn('Gagal cek DB Judul:', err);
+      return { valid: true, warning: 'Tidak dapat memeriksa database judul eksternal.' };
+    }
+  }
+
+  async function showDuplicateAlert(duplicates) {
+    Swal.close();
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    let html = `<div class="text-start">
+      <p class="text-center mb-3">Ditemukan <strong>${duplicates.length}</strong> judul yang mirip atau sama:</p>`;
+
+    duplicates.forEach(d => {
+      const isExact = d.similarity === '100.0';
+      const alertClass = isExact ? 'alert-danger' : 'alert-warning';
+      const label = isExact ? '⚠️ DUPLIKAT 100%' : `⚠️ MIRIP ${d.similarity}%`;
+      html += `
+        <div class="alert ${alertClass} mb-3" style="border-left:4px solid #dc3545; text-align:left;">
+          <div class="d-flex justify-content-between mb-1">
+            <strong>${label}</strong>
+            <span class="badge bg-secondary">${d.source}</span>
+          </div>
+          <hr style="margin:0.4rem 0;">
+          <small><strong>Judul Anda:</strong></small><br>
+          <small>"${d.judulInput}"</small><br><br>
+          <small><strong>Judul yang Sudah Ada:</strong></small><br>
+          <small>"${d.judulExisting}"</small>
+        </div>`;
+    });
+
+    html += `</div>
+      <p class="text-muted text-center mt-2 mb-0">
+        <small>Silakan ubah judul agar tidak sama/mirip dengan judul yang sudah disetujui.</small>
+      </p>`;
+
+    return await Swal.fire({
+      icon: 'error',
+      title: 'Judul Terdeteksi Duplikasi!',
+      html,
+      confirmButtonText: 'Ubah Judul',
+      confirmButtonColor: '#dc3545',
+      allowOutsideClick: false,
+      width: '680px',
+      customClass: {
+        container: 'swal-on-top'
+      }
+    });
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // ========== SUBMIT UPLOAD BIASA ==========
+  function submitUpload() {
+    if (!selectedFile) {
+      Swal.fire({ icon: 'warning', title: 'File Belum Dipilih', text: 'Pilih file terlebih dahulu!', confirmButtonColor: '#0d6efd' });
+      return;
+    }
+    const nim = document.getElementById('uploadNIM').value;
+    document.getElementById('uploadProgress').style.display = 'block';
+    const btnUpload = document.getElementById('btnUpload');
+    const btnBatal = document.querySelector('#modalUploadOverlay .btn-secondary');
+    const btnClose = document.querySelector('#modalUploadOverlay .custom-modal-close');
+    
+    btnUpload.disabled = true;
+    btnUpload.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengupload...';
+    if (btnBatal) { btnBatal.disabled = true; btnBatal.style.opacity = '0.5'; }
+    if (btnClose) { btnClose.disabled = true; btnClose.style.opacity = '0.5'; btnClose.style.pointerEvents = 'none'; }
+    
+    Swal.fire({ title: 'Mengupload File...', html: 'Mohon tunggu, jangan refresh atau close halaman.', allowOutsideClick: false, allowEscapeKey: false, didOpen: () => Swal.showLoading() });
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const base64Data = e.target.result.split(',')[1];
+      const data = { action: 'uploadFile', nim: nim, fileName: selectedFile.name, fileData: base64Data };
+      
+      fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) })
+        .then(response => response.text())
+        .then(textResponse => {
+          document.getElementById('uploadProgress').style.display = 'none';
+          if (btnBatal) { btnBatal.disabled = false; btnBatal.style.opacity = '1'; }
+          if (btnClose) { btnClose.disabled = false; btnClose.style.opacity = '1'; btnClose.style.pointerEvents = 'auto'; }
+          
+          let result;
+          try { result = JSON.parse(textResponse); } catch { result = { status: 'success' }; }
+          
+          if (result.status === 'success' || textResponse.includes('success')) {
+            closeUploadModal();
+            selectedFile = null;
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            btnUpload.disabled = true;
+            btnUpload.innerHTML = '<i class="bi bi-upload me-1"></i> Upload File';
+            const isReupload = result.isReupload || textResponse.includes('upload ulang');
+            Swal.fire({
+              icon: 'success',
+              title: isReupload ? 'Upload Ulang Berhasil!' : 'Upload Berhasil!',
+              html: isReupload ? '<p>File kesediaan pembimbing berhasil diupload ulang.</p><p class="text-muted small"><i class="bi bi-info-circle me-1"></i>File lama telah dihapus otomatis dari Google Drive.</p>' : '<p>File kesediaan pembimbing berhasil diupload.</p>',
+              timer: 3500, timerProgressBar: true, showConfirmButton: false, willClose: loadData
+            });
+          } else {
+            Swal.fire({ icon: 'error', title: 'Upload Gagal', text: result.message || 'Terjadi kesalahan', confirmButtonColor: '#dc3545' });
+            btnUpload.disabled = false;
+            btnUpload.innerHTML = '<i class="bi bi-upload me-1"></i> Upload File';
+          }
+        })
+        .catch(error => {
+          document.getElementById('uploadProgress').style.display = 'none';
+          if (btnBatal) { btnBatal.disabled = false; btnBatal.style.opacity = '1'; }
+          if (btnClose) { btnClose.disabled = false; btnClose.style.opacity = '1'; btnClose.style.pointerEvents = 'auto'; }
+          Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', html: `<p><strong>Error:</strong> ${error.message}</p>`, confirmButtonColor: '#ffc107' });
+          btnUpload.disabled = false;
+          btnUpload.innerHTML = '<i class="bi bi-upload me-1"></i> Upload File';
+        });
+    };
+    reader.readAsDataURL(selectedFile);
+  }
+
+  // ========== SUBMIT AJUKAN ULANG (dengan validasi duplikasi judul) ==========
+  function isiUlangFormAjukanUlang(nim, nilai) {
+    openAjukanUlangModal(nim);
+    setTimeout(() => {
+      Object.keys(nilai).forEach(id => { document.getElementById(id).value = nilai[id]; });
+    }, 400);
+  }
+
+  async function submitAjukanUlang() {
+    const nim = document.getElementById('ajukanUlangNIM').value;
+    const nilai = {};
+    ['ajukanUlangDosen', 'ajukanUlangJudul1', 'ajukanUlangRumusan1_1', 'ajukanUlangRumusan1_2',
+     'ajukanUlangJudul2', 'ajukanUlangRumusan2_1', 'ajukanUlangRumusan2_2',
+     'ajukanUlangJudul3', 'ajukanUlangRumusan3_1', 'ajukanUlangRumusan3_2'].forEach(id => {
+      nilai[id] = document.getElementById(id).value.trim();
+    });
+
+    const dosen = nilai.ajukanUlangDosen;
+    const judul1 = nilai.ajukanUlangJudul1, rumusan1_1 = nilai.ajukanUlangRumusan1_1, rumusan1_2 = nilai.ajukanUlangRumusan1_2;
+    const judul2 = nilai.ajukanUlangJudul2, rumusan2_1 = nilai.ajukanUlangRumusan2_1, rumusan2_2 = nilai.ajukanUlangRumusan2_2;
+    const judul3 = nilai.ajukanUlangJudul3, rumusan3_1 = nilai.ajukanUlangRumusan3_1, rumusan3_2 = nilai.ajukanUlangRumusan3_2;
+
+    // Validasi field wajib (form tetap terbuka agar isian tidak hilang)
+    if (!dosen) {
+      Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Mohon pilih dosen pembimbing!', confirmButtonColor: '#ffc107' });
+      return;
+    }
+    if (!judul1 || !rumusan1_1 || !rumusan1_2) {
+      Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Minimal Judul TA 1 beserta kedua rumusan masalahnya harus diisi!', confirmButtonColor: '#ffc107' });
+      return;
+    }
+    if (!judul2 || !rumusan2_1 || !rumusan2_2) {
+      Swal.fire({ icon: 'warning', title: 'Data Tidak Lengkap', text: 'Judul TA 2 beserta kedua rumusan masalahnya harus diisi!', confirmButtonColor: '#ffc107' });
+      return;
+    }
+
+    // ===== VALIDASI DUPLIKASI JUDUL =====
+    const judulList = [judul1, judul2, judul3].filter(j => j !== '');
+
+    closeAjukanUlangModal();
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    Swal.fire({
+      title: 'Memeriksa Duplikasi Judul...',
+      html: 'Mohon tunggu, sistem sedang memeriksa database judul...',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    const checkResult = await validateJudulNotDuplicate(judulList, nim);
+
+    if (!checkResult.valid) {
+      await showDuplicateAlert(checkResult.duplicates);
+      isiUlangFormAjukanUlang(nim, nilai);
+      return;
+    }
+
+    Swal.close();
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    if (checkResult.warning) {
+      const cont = await Swal.fire({
+        icon: 'warning',
+        title: 'Peringatan',
+        text: checkResult.warning + ' Lanjutkan pengiriman?',
+        showCancelButton: true,
+        confirmButtonText: 'Lanjutkan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#ffc107'
+      });
+      if (!cont.isConfirmed) {
+        isiUlangFormAjukanUlang(nim, nilai);
+        return;
+      }
+    }
+    // ===== END VALIDASI =====
+
+    const btnSubmit = document.getElementById('btnSubmitAjukanUlang');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+
+    Swal.fire({
+      title: 'Mengirim Pengajuan Ulang...',
+      html: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    const data = {
+      action: 'resubmit', nim,
+      pembimbing: dosen,
+      judul1, rumusan1_1, rumusan1_2,
+      judul2, rumusan2_1, rumusan2_2,
+      judul3, rumusan3_1, rumusan3_2
+    };
+
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) })
+      .then(r => r.text())
+      .then(textResponse => {
+        let result;
+        try { result = JSON.parse(textResponse); } catch { result = { status: 'success' }; }
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-send me-1"></i> Kirim Pengajuan Ulang';
+        if (result.status === 'success' || textResponse.includes('success')) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Pengajuan Ulang Berhasil!',
+            html: '<p>Data pengajuan ulang telah berhasil dikirim.</p>',
+            timer: 2500, timerProgressBar: true, showConfirmButton: false, willClose: loadData
+          });
+        } else {
+          Swal.fire({ icon: 'error', title: 'Pengajuan Gagal', text: result.message || 'Terjadi kesalahan', confirmButtonColor: '#dc3545' });
+        }
+      })
+      .catch(error => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-send me-1"></i> Kirim Pengajuan Ulang';
+        Swal.fire({ icon: 'error', title: 'Terjadi Kesalahan', html: `<p><strong>Error:</strong> ${error.message}</p>`, confirmButtonColor: '#ffc107' });
+      });
+  }
+
+  window.addEventListener('load', loadData);
+
+  return {
+    loadData,
+    _getAllData: () => allData,
+    openDetailJudulModal, closeDetailJudulModal,
+    openStatusModal, closeStatusModal,
+    openRevisiModal, closeRevisiModal,
+    openUploadModal, closeUploadModal,
+    openUploadWithChangesModal: _showUploadWithChangesModal,
+    closeUploadWithChangesModal,
+    submitRevisi, submitUpload, submitUploadWithChanges, submitAjukanUlang,
+    openAjukanUlangModal, closeAjukanUlangModal,
+    performSearch, clearSearch,
+    validateJudulNotDuplicate,
+    showDuplicateAlert
+  };
+})(); // penutup DashboardApp
+
+
+// ============================================================
+// JUDUL SEARCH MODULE (di luar DashboardApp agar bisa
+// dipanggil dari onclick di HTML)
+// ============================================================
+const JudulSearch = (function() {
+
+  function highlightKeyword(text, keyword) {
+    if (!keyword || !text) return text || '';
+    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
+    return String(text).replace(regex, '<mark>$1</mark>');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function cari() {
+    const keyword = document.getElementById('judulSearchInput').value.trim();
+
+    if (!keyword) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Kata Kunci Kosong',
+        text: 'Silakan masukkan kata kunci judul yang ingin dicari.',
+        confirmButtonColor: '#0d6efd'
+      });
+      return;
+    }
+
+    if (keyword.length < 3) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Kata Kunci Terlalu Pendek',
+        text: 'Masukkan minimal 3 karakter untuk pencarian.',
+        confirmButtonColor: '#0d6efd'
+      });
+      return;
+    }
+
+    const data = DashboardApp._getAllData ? DashboardApp._getAllData() : [];
+
+    if (!data || data.length === 0) {
+      tampilkanHasil([], keyword);
+      return;
+    }
+
+    const keywordLower = keyword.toLowerCase();
+    const hasil = [];
+
+    data.forEach(row => {
+      const status = String(row[14]).trim();
+      let judulDisetujui = '', rumusan1 = '', rumusan2 = '', nomorJudul = '';
+
+      if (status === 'Judul TA 1 Di Setujui') {
+        judulDisetujui = String(row[5] || ''); rumusan1 = String(row[6] || ''); rumusan2 = String(row[7] || ''); nomorJudul = 'Judul TA 1';
+      } else if (status === 'Judul TA 2 Di Setujui') {
+        judulDisetujui = String(row[8] || ''); rumusan1 = String(row[9] || ''); rumusan2 = String(row[10] || ''); nomorJudul = 'Judul TA 2';
+      } else if (status === 'Judul TA 3 Di Setujui') {
+        judulDisetujui = String(row[11] || ''); rumusan1 = String(row[12] || ''); rumusan2 = String(row[13] || ''); nomorJudul = 'Judul TA 3';
+      } else {
+        return;
+      }
+
+      if (judulDisetujui.toLowerCase().includes(keywordLower)) {
+        hasil.push({
+          nim: String(row[2] || ''),
+          nama: String(row[1] || ''),
+          konsentrasi: String(row[3] || ''),
+          dosenDisetujui: String(row[16] || '-'),
+          judul: judulDisetujui,
+          rumusan1: rumusan1,
+          rumusan2: rumusan2,
+          nomorJudul: nomorJudul,
+          timestamp: String(row[0] || '')
+        });
+      }
+    });
+
+    tampilkanHasil(hasil, keyword);
+
+    document.getElementById('btnResetJudulSearch').classList.add('visible');
+
+    setTimeout(() => {
+      const resultsEl = document.getElementById('judulSearchResults');
+      if (resultsEl) {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 100);
+  }
+
+  function tampilkanHasil(hasil, keyword) {
+    const container = document.getElementById('judulSearchResults');
+    container.classList.add('visible');
+    const keywordAman = escapeHtml(keyword);
+
+    if (hasil.length === 0) {
+      container.innerHTML = `
+        <div class="no-judul-found">
+          <i class="bi bi-search"></i>
+          <h6>Judul Tidak Ditemukan</h6>
+          <p>Tidak ada judul yang disetujui dengan kata kunci "<strong>${keywordAman}</strong>".<br>
+          Coba gunakan kata kunci lain atau periksa ejaan Anda.</p>
+        </div>`;
+      return;
+    }
+
+    let cardsHTML = '';
+    hasil.forEach((item, index) => {
+      const judulHighlighted = highlightKeyword(item.judul, keyword);
+      const dosenText = item.dosenDisetujui && item.dosenDisetujui !== '-'
+        ? item.dosenDisetujui
+        : '<em style="color:#adb5bd;">Belum ada dosen yang disetujui</em>';
+
+      const rumusanHTML = (item.rumusan1 && item.rumusan1 !== '-') || (item.rumusan2 && item.rumusan2 !== '-')
+        ? `<div class="card-rumusan">
+            <div class="card-rumusan-title">
+              <i class="bi bi-list-ul"></i> Rumusan Masalah
+            </div>
+            ${item.rumusan1 && item.rumusan1 !== '-'
+              ? `<div class="card-rumusan-item"><strong>1.</strong> ${item.rumusan1}</div>`
+              : ''}
+            ${item.rumusan2 && item.rumusan2 !== '-'
+              ? `<div class="card-rumusan-item"><strong>2.</strong> ${item.rumusan2}</div>`
+              : ''}
+           </div>`
+        : '';
+
+      cardsHTML += `
+        <div class="judul-result-card" style="animation-delay: ${index * 0.05}s;">
+          <div class="card-tag">
+            <i class="bi bi-check-circle-fill"></i> Disetujui: ${item.nomorJudul}
+          </div>
+          <div class="card-judul">${judulHighlighted}</div>
+          <div class="card-meta">
+            <div class="card-meta-item">
+              <i class="bi bi-person-badge-fill"></i>
+              <div><strong>NIM:</strong><span class="meta-value"> ${item.nim}</span></div>
+            </div>
+            <div class="card-meta-item">
+              <i class="bi bi-person-fill"></i>
+              <div><strong>Mahasiswa:</strong><span class="meta-value"> ${item.nama}</span></div>
+            </div>
+            <div class="card-meta-item">
+              <i class="bi bi-bookmark-fill"></i>
+              <div><strong>Konsentrasi:</strong><span class="meta-value"> ${item.konsentrasi || '-'}</span></div>
+            </div>
+            <div class="card-meta-item">
+              <i class="bi bi-person-workspace"></i>
+              <div><strong>Dosen Pembimbing:</strong><span class="meta-value"> ${dosenText}</span></div>
+            </div>
+          </div>
+          ${rumusanHTML}
+        </div>`;
+    });
+
+    container.innerHTML = `
+      <div class="search-result-header">
+        <div class="result-count">
+          Ditemukan <span>${hasil.length}</span> judul yang disetujui
+          dengan kata kunci "<strong style="color:#fff;">${keywordAman}</strong>"
+        </div>
+      </div>
+      <div class="judul-result-grid">${cardsHTML}</div>`;
+  }
+
+  function reset() {
+    document.getElementById('judulSearchInput').value = '';
+    document.getElementById('judulSearchResults').classList.remove('visible');
+    document.getElementById('judulSearchResults').innerHTML = '';
+    document.getElementById('btnResetJudulSearch').classList.remove('visible');
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('judulSearchInput');
+    if (input) {
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') cari();
+      });
+    }
+  });
+
+  return { cari, reset };
+})();
+</script>
+</body>
+</html>
